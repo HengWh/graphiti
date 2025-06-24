@@ -72,9 +72,16 @@ class GeminiClient(LLMClient):
 
         self.model = config.model
         # Configure the Gemini API
-        self.client = genai.Client(
-            api_key=config.api_key,
-        )
+        client_kwargs = {
+            'api_key': config.api_key,
+        }
+        
+        # Add base_url if provided through http_options
+        if config.base_url:
+            from google.genai.types import HttpOptions
+            client_kwargs['http_options'] = HttpOptions(base_url=config.base_url)
+            
+        self.client = genai.Client(**client_kwargs)
         self.max_tokens = max_tokens
 
     async def _generate_response(

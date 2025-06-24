@@ -14,6 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import sys
+import os
+from pathlib import Path
+
+# 添加项目根目录到 Python 路径，使其能够找到 graphiti_core 模块
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 import asyncio
 import json
 import logging
@@ -26,6 +34,7 @@ from dotenv import load_dotenv
 from graphiti_core import Graphiti
 from graphiti_core.nodes import EpisodeType
 from graphiti_core.search.search_config_recipes import NODE_HYBRID_SEARCH_RRF
+from graphiti_core.embedder.gemini import GeminiEmbedder, GeminiEmbedderConfig
 
 #################################################
 # CONFIGURATION
@@ -63,8 +72,16 @@ async def main():
     # functionality
     #################################################
 
-    # Initialize Graphiti with Neo4j connection
-    graphiti = Graphiti(neo4j_uri, neo4j_user, neo4j_password)
+    # 配置 Gemini embedder
+    gemini_config = GeminiEmbedderConfig(
+        api_key=os.environ.get('GEMINI_API_KEY'),  # 从环境变量获取 Gemini API key
+        base_url=os.environ.get('GEMINI_BASE_URL'),  # 从环境变量获取 Gemini base URL
+        embedding_model='embedding-001'  # Gemini 的默认 embedding 模型
+    )
+    gemini_embedder = GeminiEmbedder(config=gemini_config)
+
+    # Initialize Graphiti with Neo4j connection and Gemini embedder
+    graphiti = Graphiti(neo4j_uri, neo4j_user, neo4j_password, embedder=gemini_embedder)
 
     try:
         # Initialize the graph database with graphiti's indices. This only needs to be done once.

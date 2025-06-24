@@ -28,6 +28,7 @@ DEFAULT_EMBEDDING_MODEL = 'embedding-001'
 class GeminiEmbedderConfig(EmbedderConfig):
     embedding_model: str = Field(default=DEFAULT_EMBEDDING_MODEL)
     api_key: str | None = None
+    base_url: str | None = None
 
 
 class GeminiEmbedder(EmbedderClient):
@@ -41,9 +42,15 @@ class GeminiEmbedder(EmbedderClient):
         self.config = config
 
         # Configure the Gemini API
-        self.client = genai.Client(
-            api_key=config.api_key,
-        )
+        client_kwargs = {
+            'api_key': config.api_key,
+        }
+        
+        # Add base_url if provided
+        if config.base_url:
+            client_kwargs['http_options'] = types.HttpOptions(base_url=config.base_url)
+            
+        self.client = genai.Client(**client_kwargs)
 
     async def create(
         self, input_data: str | list[str] | Iterable[int] | Iterable[Iterable[int]]
