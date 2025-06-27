@@ -1,0 +1,124 @@
+{
+  "conversation_id": "dialogue_4",
+  "entities": [
+    {
+      "entity_id": "dialogue_4_person_1",
+      "text": "黄总",
+      "type": "Person",
+      "context": "黄总 (部门总监):",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_person_2",
+      "text": "周凯",
+      "type": "Person",
+      "context": "@周凯 (一部负责人)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_person_3",
+      "text": "李娜",
+      "type": "Person",
+      "context": "@李娜 (二部负责人)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_meeting_1",
+      "text": "集团的经管会",
+      "type": "Meeting",
+      "context": "本周五就是集团的经管会了",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_project_1",
+      "text": "鲲鹏计划",
+      "type": "Project",
+      "context": "“鲲鹏计划”的进度怎么样？",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_task_1",
+      "text": "支付网关的联调",
+      "type": "Task",
+      "context": "那个支付网关的联调任务完成了吗？",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_project_2",
+      "text": "天眼系统",
+      "type": "Project",
+      "context": "“天眼系统”呢？",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_document_1",
+      "text": "风险评估报告",
+      "type": "Document",
+      "context": "风险评估报告出来了吗？",
+      "attributes": {
+        "project": "天眼系统"
+      }
+    },
+    {
+      "entity_id": "dialogue_4_meeting_2",
+      "text": "评审会",
+      "type": "Meeting",
+      "context": "昨天我们还和财务开了一个小范围的评审会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_document_2",
+      "text": "鲲鹏项目周报_W46.pptx",
+      "type": "Document",
+      "context": "[文件] 鲲鹏项目周报_W46.pptx",
+      "attributes": {
+        "title": "鲲鹏项目周报",
+        "version": "W46",
+        "format": "pptx",
+        "project": "鲲鹏计划"
+      }
+    },
+    {
+      "entity_id": "dialogue_4_document_3",
+      "text": "天眼系统可用性风险评估及方案_v1.0.xlsx",
+      "type": "Document",
+      "context": "[文件] 天眼系统可用性风险评估及方案_v1.0.xlsx",
+      "attributes": {
+        "title": "天眼系统可用性风险评估及方案",
+        "version": "v1.0",
+        "format": "xlsx",
+        "project": "天眼系统"
+      }
+    },
+    {
+      "entity_id": "dialogue_4_document_4",
+      "text": "鲲鹏计划二期-用户画像功能需求文档.docx",
+      "type": "Document",
+      "context": "您说的是 鲲鹏计划二期-用户画像功能需求文档.docx 吧？",
+      "attributes": {
+        "title": "鲲鹏计划二期-用户画像功能需求文档",
+        "format": "docx",
+        "project": "鲲鹏计划"
+      }
+    },
+    {
+      "entity_id": "dialogue_4_meeting_3",
+      "text": "设计评审会",
+      "type": "Meeting",
+      "context": "我们今天下午会和UI团队开一个设计评审会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_4_document_5",
+      "text": "天眼系统交互优化设计稿_v3.sketch",
+      "type": "Document",
+      "context": "[文件] 天眼系统交互优化设计稿_v3.sketch",
+      "attributes": {
+        "title": "天眼系统交互优化设计稿",
+        "version": "v3",
+        "format": "sketch",
+        "project": "天眼系统"
+      }
+    }
+  ]
+}

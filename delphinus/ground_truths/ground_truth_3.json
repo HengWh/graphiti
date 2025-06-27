@@ -1,0 +1,122 @@
+{
+  "conversation_id": "dialogue_3",
+  "entities": [
+    {
+      "entity_id": "dialogue_3_person_1",
+      "text": "赵菲",
+      "type": "Person",
+      "context": "赵菲 (法务):",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_person_2",
+      "text": "吴越",
+      "type": "Person",
+      "context": "@吴越 (项目经理)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_project_1",
+      "text": "方舟项目",
+      "type": "Project",
+      "context": "“方舟项目”与“星尘科技”签署的所有合同和补充协议",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_organization_1",
+      "text": "星尘科技",
+      "type": "Organization",
+      "context": "“方舟项目”与“星尘科技”签署的所有合同和补充协议",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_document_1",
+      "text": "合同和补充协议",
+      "type": "Document",
+      "context": "签署的所有合同和补充协议",
+      "attributes": {
+        "project": "方舟项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_3_document_2",
+      "text": "律师函",
+      "type": "Document",
+      "context": "刚刚收到对方的律师函",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_document_3",
+      "text": "合同附件二",
+      "type": "Document",
+      "context": "合同附件二里关于数据所有权的条款",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_person_3",
+      "text": "李四",
+      "type": "Person",
+      "context": "和他们CTO李四直接沟通的",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_document_4",
+      "text": "方舟项目-数据所有权补充协议_final_draft.docx",
+      "type": "Document",
+      "context": "[文件] 方舟项目-数据所有权补充协议_final_draft.docx",
+      "attributes": {
+        "title": "方舟项目-数据所有权补充协议",
+        "version": "final_draft",
+        "format": "docx",
+        "project": "方舟项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_3_person_4",
+      "text": "小张",
+      "type": "Person",
+      "context": "行政的小张去归档了",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_document_5",
+      "text": "邮件截图_李四确认函.png",
+      "type": "Document",
+      "context": "[图片] 邮件截图_李四确认函.png",
+      "attributes": {
+        "title": "邮件截图_李四确认函",
+        "format": "png"
+      }
+    },
+    {
+      "entity_id": "dialogue_3_task_1",
+      "text": "整理出一条完整的证据链",
+      "type": "Task",
+      "context": "整理出一条完整的证据链",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_meeting_1",
+      "text": "紧急会议",
+      "type": "Meeting",
+      "context": "为明天一早和管理层的紧急会议做准备",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_meeting_2",
+      "text": "月度例会",
+      "type": "Meeting",
+      "context": "4月份的月度例会上还专门讨论过这个条款的落地情况",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_3_document_6",
+      "text": "会议纪要",
+      "type": "Document",
+      "context": "我去翻一下当时的会议纪要",
+      "attributes": {
+        "meeting": "月度例会"
+      }
+    }
+  ]
+}

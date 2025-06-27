@@ -1,0 +1,118 @@
+{
+  "conversation_id": "dialogue_2",
+  "entities": [
+    {
+      "entity_id": "dialogue_2_person_1",
+      "text": "陈琳",
+      "type": "Person",
+      "context": "陈琳 (市场总监) 与 孙杨 (数据分析师)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_person_2",
+      "text": "孙杨",
+      "type": "Person",
+      "context": "陈琳 (市场总监) 与 孙杨 (数据分析师)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_organization_1",
+      "text": "蓝海资本",
+      "type": "Organization",
+      "context": "要去见“蓝海资本”的投资人",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_task_1",
+      "text": "准备一个关于我们用户增长的PPT",
+      "type": "Task",
+      "context": "正在准备一个关于我们用户增长的PPT",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_project_1",
+      "text": "灯塔计划",
+      "type": "Project",
+      "context": "我们“灯塔计划”推广后",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_project_2",
+      "text": "启航行动",
+      "type": "Project",
+      "context": "是“启航行动”的周会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_meeting_1",
+      "text": "周会",
+      "type": "Meeting",
+      "context": "“启航行动”的周会",
+      "attributes": {
+        "project": "启航行动"
+      }
+    },
+    {
+      "entity_id": "dialogue_2_meeting_2",
+      "text": "月度业务复盘会（MBR）",
+      "type": "Meeting",
+      "context": "还是整个公司的月度业务复盘会（MBR）？",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_person_3",
+      "text": "刘总",
+      "type": "Person",
+      "context": "刘总好像也在场",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_document_1",
+      "text": "PPT",
+      "type": "Document",
+      "context": "你当时展示的是一个PPT",
+      "attributes": {
+        "format": "PPT"
+      }
+    },
+    {
+      "entity_id": "dialogue_2_document_2",
+      "text": "合作方案",
+      "type": "Document",
+      "context": "我这份给“蓝海资本”的合作方案就差这个关键数据了",
+      "attributes": {
+        "audience": "蓝海资本"
+      }
+    },
+    {
+      "entity_id": "dialogue_2_meeting_3",
+      "text": "Q3业务复盘会",
+      "type": "Meeting",
+      "context": "10月底的Q3业务复盘会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_2_document_3",
+      "text": "MBR_2023_Q3_v2.pptx",
+      "type": "Document",
+      "context": "我这有个叫 MBR_2023_Q3_v2.pptx 的文件",
+      "attributes": {
+        "title": "MBR_2023_Q3",
+        "version": "v2",
+        "format": "pptx",
+        "meeting": "Q3业务复盘会"
+      }
+    },
+    {
+      "entity_id": "dialogue_2_document_4",
+      "text": "灯塔计划-Q3用户行为深度分析.xlsx",
+      "type": "Document",
+      "context": "[文件] 灯塔计划-Q3用户行为深度分析.xlsx",
+      "attributes": {
+        "title": "灯塔计划-Q3用户行为深度分析",
+        "format": "xlsx",
+        "project": "灯塔计划"
+      }
+    }
+  ]
+}

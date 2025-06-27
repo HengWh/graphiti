@@ -1,0 +1,130 @@
+{
+  "conversation_id": "dialogue_1",
+  "entities": [
+    {
+      "entity_id": "dialogue_1_person_1",
+      "text": "夏雨",
+      "type": "Person",
+      "context": "夏雨 (产品经理):",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_person_2",
+      "text": "李明",
+      "type": "Person",
+      "context": "@李明 (项目经理)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_person_3",
+      "text": "王强",
+      "type": "Person",
+      "context": "@王强 (技术负责人)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_project_1",
+      "text": "盘古项目",
+      "type": "Project",
+      "context": "“盘古项目”进展材料",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_document_1",
+      "text": "盘古项目技术规格书_v3.1.docx",
+      "type": "Document",
+      "context": "盘古项目技术规格书_v3.1.docx 是最终版吗？",
+      "attributes": {
+        "title": "盘古项目技术规格书",
+        "version": "v3.1",
+        "format": "docx",
+        "project": "盘古项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_meeting_1",
+      "text": "评审会",
+      "type": "Meeting",
+      "context": "上周三开完评审会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_document_2",
+      "text": "会议纪要",
+      "type": "Document",
+      "context": "会议纪要里好像没提",
+      "attributes": {
+        "meeting": "评审会"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_person_4",
+      "text": "张伟",
+      "type": "Person",
+      "context": "架构组的张伟",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_person_5",
+      "text": "刘洋",
+      "type": "Person",
+      "context": "新人刘洋",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_meeting_2",
+      "text": "盘古项目存储架构专题会",
+      "type": "Meeting",
+      "context": "上周四“盘古项目存储架构专题会”的会议纪要PDF版",
+      "attributes": {
+        "project": "盘古项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_document_3",
+      "text": "报告",
+      "type": "Document",
+      "context": "我需要理解变更的背景，这对写给CTO的报告很重要",
+      "attributes": {
+        "audience": "CTO"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_task_1",
+      "text": "资源申请",
+      "type": "Task",
+      "context": "关系到我们下个季度的资源申请",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_1_document_4",
+      "text": "盘古项目技术规格书_FINAL_v4.0.docx",
+      "type": "Document",
+      "context": "文件名是 盘古项目技术规格书_FINAL_v4.0.docx",
+      "attributes": {
+        "title": "盘古项目技术规格书",
+        "version": "FINAL_v4.0",
+        "format": "docx",
+        "project": "盘古项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_document_5",
+      "text": "20231116-盘古项目存储架构专题会会议纪要.pdf",
+      "type": "Document",
+      "context": "[文件] 20231116-盘古项目存储架构专题会会议纪要.pdf",
+      "attributes": {
+        "title": "盘古项目存储架构专题会会议纪要",
+        "format": "pdf",
+        "meeting": "盘古项目存储架构专题会"
+      }
+    },
+    {
+      "entity_id": "dialogue_1_task_2",
+      "text": "更新我们的项目计划表",
+      "type": "Task",
+      "context": "我马上去更新我们的项目计划表",
+      "attributes": {}
+    }
+  ]
+}

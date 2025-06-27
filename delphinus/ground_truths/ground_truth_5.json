@@ -1,0 +1,116 @@
+{
+  "conversation_id": "dialogue_5",
+  "entities": [
+    {
+      "entity_id": "dialogue_5_person_1",
+      "text": "张伟",
+      "type": "Person",
+      "context": "张伟 (资深工程师) 与 钱力 (工程师)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_person_2",
+      "text": "钱力",
+      "type": "Person",
+      "context": "张伟 (资深工程师) 与 钱力 (工程师)",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_project_1",
+      "text": "蜂巢项目",
+      "type": "Project",
+      "context": "交接一下“蜂巢项目”的工作",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_code_1",
+      "text": "project-honeycomb",
+      "type": "Code",
+      "context": "GitLab的 ‘project-honeycomb’ 仓库里",
+      "attributes": {
+        "type": "repository"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_document_1",
+      "text": "蜂巢项目立项报告.docx",
+      "type": "Document",
+      "context": "第一个是立项时写的 蜂巢项目立项报告.docx",
+      "attributes": {
+        "title": "蜂巢项目立项报告",
+        "format": "docx",
+        "project": "蜂巢项目"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_document_2",
+      "text": "用户研究结论汇总.pdf",
+      "type": "Document",
+      "context": "第二个是 用户研究结论汇总.pdf",
+      "attributes": {
+        "title": "用户研究结论汇总",
+        "format": "pdf"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_document_3",
+      "text": "PoC技术验证文档.md",
+      "type": "Document",
+      "context": "我写的一个技术验证文档 PoC技术验证文档.md",
+      "attributes": {
+        "title": "PoC技术验证文档",
+        "format": "md"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_task_1",
+      "text": "优化数据查询模块的性能",
+      "type": "Task",
+      "context": "目前的核心任务是“优化数据查询模块的性能”",
+      "attributes": {
+        "task_id": "T-1235"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_person_3",
+      "text": "王工",
+      "type": "Person",
+      "context": "需要你和架构组的王工讨论一下",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_code_2",
+      "text": "feature/query-optimization",
+      "type": "Code",
+      "context": "一个分支叫 feature/query-optimization",
+      "attributes": {
+        "type": "branch"
+      }
+    },
+    {
+      "entity_id": "dialogue_5_meeting_1",
+      "text": "迭代计划会",
+      "type": "Meeting",
+      "context": "要开一个迭代计划会",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_person_4",
+      "text": "李静",
+      "type": "Person",
+      "context": "产品经理李静",
+      "attributes": {}
+    },
+    {
+      "entity_id": "dialogue_5_document_4",
+      "text": "蜂巢项目产品需求池.xlsx",
+      "type": "Document",
+      "context": "她手上有一份最新的 蜂巢项目产品需求池.xlsx",
+      "attributes": {
+        "title": "蜂巢项目产品需求池",
+        "format": "xlsx",
+        "project": "蜂巢项目"
+      }
+    }
+  ]
+}
