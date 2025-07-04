@@ -20,6 +20,7 @@ services:
       start_period: 30s
 
   graphiti-mcp:
+    image: zepai/knowledge-graph-mcp:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -36,6 +37,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MODEL_NAME=${MODEL_NAME}
       - PATH=/root/.local/bin:${PATH}
+      - SEMAPHORE_LIMIT=${SEMAPHORE_LIMIT:-10}
     ports:
       - "8000:8000" # Expose the MCP server via HTTP for SSE transport
     command: ["uv", "run", "graphiti_mcp_server.py", "--transport", "sse"]
