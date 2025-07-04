@@ -1,0 +1,7 @@
+httpx
+python-dotenv
+rich
+deepdiff
+google-genai
+streamlit
+pytest

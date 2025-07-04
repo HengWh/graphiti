@@ -1,0 +1,88 @@
+# 主题: LibCurl Sentry上报问题汇总和处理
+
+1. 09:51:30 王府: (msg 1) 我创建了一个任务麻烦 「韩竹」、「王恒」、「吕邢瀚」 一起保持关注
+2. 10:00:14 王府: (msg 2) 右边整理了Sentry上的一些LibCurl相关的错误记录
+3. 10:00:16 王府: (msg 3) Win7 虚拟机中手动卸载补丁 KB2999226 后，复现了右边1中“Unable to load DLL 'libcurl': 找不到指定的程序”的异常<br><br>KB2999226 ： <http://support.microsoft.com/kb/KB2999226> 是 “Update for Universal C Runtime in Windows”<br><br>2015年9月份发布的补丁， 看起来有些用户的Win7上没有这个补丁
+4. 10:00:17 王府: (msg 4) KB2999226 补丁卸载后watchdog.exe 也无法运行了，bin目录确实有api-ms-win-crt-math-l1-1-0.dll， 但卸载KB2999226后，看起来找不到某个function的entry point了<br><br>[内嵌图片: image.png]
+5. 10:01:06 王府: (msg 5) (reply to 4) 客户端中再添加下面这几个dll依赖, 这样即使用户的Win7上没有安装 KB2999226 这个补丁，   <br>nutstore\_watchdog.exe 和 Nutstore.LibCurl.Validator.exe 也可以正常运行了。  <br>  <br>[内嵌图片: image.png]
+6. 10:05:30 王府: (msg 6) 右侧问题1和2 已找到原因并修复
+7. 10:05:31 王府: (msg 7) 问题5 Timeout 周五我复现了一次，<br><br>用户的文件夹很多，刚开始同步时下行会发送大量请求，平均采样约100个请求会异步启动LibCurlValidator.exe一次, 上一个LibCurl.Validator.exe可能还没有结束， 新的LibCurl.Validator.exe可能就运行起来了，同一时间可能会有多个LibCurl.Validator.exe在运行，  日志中记录了一次timeout。看起来是因为Rust web service overload导致？<br><br>我在代码中处理了下， 如果上一个LibCurl.Validator.exe进程仍在运行， 就跳过， 不要启动新的LibCurl.Validator.exe进程。
+8. 10:05:57 王府: (msg 8) 问题4：CURLE\_PEER\_FAILED\_VERIFICATION， **SSL peer certificate or SSH remote key was not OK**<br><br>> **Firewalls and Proxies:** Users might be behind firewalls or proxies that **intercept and re-sign SSL certificates**. This can cause verification issues if the proxy's certificate isn't trusted by their system.<br><br>我用 [mitmproxy - an interactive HTTPS proxy](https://mitmproxy.org/) 设置拦截LibCurl.Validator.exe的流量 可以重现这个问题，   <br>  <br>[内嵌图片: image.png]<br><br>遇到这个问题的用户，可能是电脑上有类似的软件在监控流量和用户行为？<br><br>然后这个软件的证书添加到了系统的根证书列表中， 但不在CURL的ca-bundle.crt文件中，所以出现了这个问题？
+9. 10:05:57 工作台助手: (msg 9) 「王府」 邀请 「Gitea-Bot」 加入任务
+10. 10:05:57 王府: (msg 10) @Gitea-Bot
+11. 10:09:42 Gitea-Bot: (msg 11) 「王府」王恒本次review信息如下，请及时查看：<br>将request 全都放在try-catch中，如果发生任何异常，需要先httpClient.Dispose()，再throw?<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/209
+12. 10:09:43 Gitea-Bot: (msg 12) 王府发表了评论：不可以，遇到WebException, caller可能需要读取response stream中的具体错误内容<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/209
+13. 10:09:43 韩竹: (msg 13) “然后这个软件的证书添加到了系统的根证书列表中， 但不在CURL的ca-bundle.crt文件中，所以出现了这个问题？”<br><br>很有可能。
+14. 10:09:43 Gitea-Bot: (msg 14) 「王府」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/209
+15. 10:17:17 王府: (msg 15) ca\_native
+16. 10:17:17 王府: (msg 16) (reply to 15) ca-bundle.crt
+17. 10:17:17 王府: (msg 17) Nginx 添加HTTP支持
+18. 10:17:17 王府: (msg 18) 5，6，7 发生错误后， 用.NET native http验证，如果.NET 没问题，上报
+19. 10:20:27 王府: (msg 19) Using **CURLOPT\_SSL\_OPTIONS**: Set the **CURLSSLOPT\_NATIVE\_CA** bit in the bitmask.<br><br>> Tell libcurl to use the operating system's native CA store for certificate verification. If you **set this option and also set a CA certificate file** or directory then during verification those certificates are searched **in addition to** the native CA store.
+20. 10:21:18 王府: (msg 20) [CurlDebugCallback] CURLINFO\_TEXT: successfully imported Windows ROOT store<br><br>[CurlDebugCallback] CURLINFO\_TEXT: successfully imported Windows CA store
+21. 10:21:18 王府: (msg 21) (reply to 8) 设置 CURLSSLOPT\_NATIVE\_CAoption后，再次用mitmproxy测试，不再有这个CURLE\_PEER\_FAILED\_VERIFICATION问题
+22. 10:21:19 王府: (msg 22) (reply to 19) > If you **set this option and also set a CA certificate file** or directory then during verification those certificates are searched **in addition to** the native CA store.<br><br>反过来，测试了将mitm proxy的证书从系统根证书列表中删除， 但添加到curl的ca-bundle.crt中， 也能正常工作， 不再有这个CURLE\_PEER\_FAILED\_VERIFICATION问题。
+23. 10:21:41 王府: (msg 23) (reply to 18) TODO
+24. 10:21:42 Gitea-Bot: (msg 24) 「王府」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/213
+25. 10:36:06 Gitea-Bot: (msg 25) 「王府」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/220
+26. 10:36:09 王府: (msg 26) (reply to 18) Done.
+27. 11:00:44 韩竹: (msg 27) libcurl是不是可以考虑用growthbook逐步发布了？
+28. 11:00:44 王府: (msg 28) (reply to 27) @韩竹 等我这两天先再检查下7.2.5的sentry上报中有没有什么新libcurl问题
+29. 11:06:15 王府: (msg 29) 7.2.5还是有一些 CURLE\_SSL\_CONNECT\_ERROR (35)：A problem occurred somewhere in the SSL/TLS handshake. 的上报，<br><br>有GET，也有POST， 但这些上报看起来都是HTTP/2<br><br><https://sentry.jianguoyun.net.cn/nutstore/win-wpf-client/issues/2758253/events/8766861/>
+30. 11:06:15 王府: (msg 30) (reply to 29) 我怀疑可能是用了网络代理，且代理不支持HTTP/2， 但用mitmproxy 设置 --no-http2 参数试了试， 没能复现，请求会自动fallback到HTTP/1.1
+31. 11:06:16 王府: (msg 31) TODO：<br><br>1. 使LibCurl feature支持动态enable与disable<br>2. 支持用GrowthBook控制libcurl是否启用
+32. 11:06:19 韩竹: (msg 32) (reply to 30) @王府 我们的libcurl测试服务器用的nginx？http2是可以自动fallback到http 1.1的
+33. 11:06:19 韩竹: (msg 33) 可能有其他我们实现的问题需要排查下。
+34. 11:06:19 韩竹: (msg 34) 只有代理明确支持http 2，nginx才会采用http2的。<br><br>我怀疑是libcurl在协商http2协议的时候有点什么特殊开关，或者需要我们实现什么东西。
+35. 11:06:19 韩竹: (msg 35) @王府
+36. 11:06:20 韩竹: (msg 36) 是否使用http 2是需要代理和nginx之间协商的。我们在碰到问题的时候有没有将是否配置了代理进行上报到sentry？
+37. 11:06:22 王府: (msg 37) @韩竹 目前没有上报 “是否配置了代理”到sentry,<br><br>我们的LibCurl实现正常情况下ALPN是可以协商使用HTTP2的，用户不知道是什么特殊网络环境，导致HTTP2失败  <br>[内嵌图片: image.png]
+38. 11:06:30 韩竹: (msg 38) (reply to 37) @王府 你是怎么确认使用的是http2呢？
+39. 11:06:30 韩竹: (msg 39) 如果HTTP2代理不支持，协商不可能会成功的。
+40. 11:06:31 王府: (msg 40) (reply to 38) @韩竹 截图不是高亮出来了嘛
+41. 11:06:31 王府: (msg 41) (reply to 39) @韩竹 上面说了 会fallback到http 1.1
+42. 11:07:55 韩竹: (msg 42) (reply to 40) @王府 大概是我理解错了。这个服务器有配置tls 1.2吗？ ssl socket链接失败和h2没关系，http2是在ssl 连接成功后才会启用的。
+43. 11:07:55 工作台助手: (msg 43) 「韩竹」 邀请 「夏帆」 加入任务
+44. 11:07:55 韩竹: (msg 44) 感觉可能还是tls协商的时候出了问题，@夏帆  这个tlstest.jianguoyun.com的nginx配置贴出来看下呢？
+45. 11:08:45 夏帆: (msg 45) [image: image.png]
+46. 11:09:20 韩竹: (msg 46) (reply to 45) @夏帆 重点是cipher的配置部分
+47. 11:09:21 韩竹: (msg 47) 截图里看不到
+48. 11:09:21 韩竹: (msg 48) [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/#server=nginx&version=1.27.3&config=intermediate&openssl=3.4.0&guideline=5.7)
+49. 11:09:21 韩竹: (msg 49) 你用这个更新下配置，选择为intermediate
+50. 11:09:21 夏帆: (msg 50) [image: image.png]
+51. 11:09:21 夏帆: (msg 51) 已经更新
+52. 11:09:22 韩竹: (msg 52) @王府 再观察下会不会有错误的情况
+53. 11:09:22 王府: (msg 53) (reply to 52) @韩竹 好的
+54. 11:10:50 王府: (msg 54) 服务端的配置应该没问题，之前我这边各个系统版本上测试也都是正常的<br><br>[SSL Server Test:](https://www.ssllabs.com/ssltest/analyze.html?d=tlstest.jianguoyun.net.cn) [tlstest.jianguoyun.net.cn](http://tlstest.jianguoyun.net.cn) [(Powered by Qualys SSL Labs)](https://www.ssllabs.com/ssltest/analyze.html?d=tlstest.jianguoyun.net.cn)<br><br>SSL Labs的测试看起来也没什么问题
+55. 11:10:51 王府: (msg 55) 从Sentry上看，还是有curl 35 CURLE\_SSL\_CONNECT\_ERROR这个错误上报， <br><br>还有几个<br><br>"curl\_code":60， "An error occurred while sending the request. SSL peer certificate or SSH remote key was not OK"<br><br>还有几个.NET原生的HttpWebRequest SSL异常上报：<br><br>[System.Net](http://System.Net).WebException: 请求被中止: 未能创建 SSL/TLS 安全通道。 在 [System.Net](http://System.Net).HttpWebRequest.GetRequestStream(TransportContext& context) 在 [System.Net](http://System.Net).HttpWebRequest.GetRequestStream()  <br>  <br>我怀疑上报的这些用户是不是电脑的时间不对？  <br>  <br>我如果手动调错时间，可以复现curl 60: SSL peer certificate or SSH remote key was not OK
+56. 11:16:33 Gitea-Bot: (msg 56) 「王府」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/227
+57. 11:20:46 Gitea-Bot: (msg 57) 「王府」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/229
+58. 12:09:20 工作台助手: (msg 58) 「王府」 归档了任务
+59. 12:37:14 工作台助手: (msg 59) 「王恒」 重新打开了任务
+60. 12:37:15 王恒: (msg 60) 用户那里反馈一个 Libcurl的错误，35，CURLE\_SSL\_CONNECT\_ERROR  <br><br>如右侧问题7<br><br>远程用户，获取了debug日志，看起来原因是本地的 ca-bundle.crt 证书无效？<br><br>关键信息如下：<br><br>[CurlDebugCallback] CURLINFO\_TEXT: **TLS connect error: error:1100009E:X509 V3 routines::invalid certificate**<br><br>[内嵌图片: image.png]
+61. 12:37:15 王恒: (msg 61) 用户电脑上，原生的NetFramework HttpRequest 正常。
+62. 12:41:16 韩竹: (msg 62) (reply to 60) @王恒 我怀疑是导入的系统证书有问题，也许不导入系统证书能解救问题？<br><br>我们只有在用户配置了代理的情况下才考虑导入系统证书？否则只导入我们自己的证书？
+63. 13:12:38 王恒: (msg 63) ### 记录<br><br>Libcurl rollout 比例由1% 调整至 3%
+64. 13:37:25 王恒: (msg 64) ### **记录**<br><br>Libcurl rollout 比例由3% 调整至 5%
+65. 13:37:26 王恒: (msg 65) 如果Libcurl遇到 CURLE\_SSL\_CONNECT\_ERROR (35)错误，则自动切换为Net原生HttpRequest<br><br><https://gitea.jianguoyun.net.cn/wangheng/nutstore-wpf-client/src/branch/WS-337993-Fallback-to-net-http-request-when-CURLE_SSL_CONNECT_ERROR>
+66. 13:37:26 王恒: (msg 66) 提高Libcurl比例至5% 再观测一周。 如果遇到此问题的用户，依然是系统自带的curl.exe都不行。 就确定执行Fallback机制。
+67. 14:18:56 王恒: (msg 67) @Gitea-Bot
+68. 14:18:56 Gitea-Bot: (msg 68) [Gitea-Bot 安全扫描报告，内容已省略]
+69. 14:18:56 Gitea-Bot: (msg 69) [Gitea-Bot 扫描目录列表信息，内容已省略]
+70. 14:18:57 王恒: (msg 70) (reply to 65) 记录：<br><br>增加对 CURLE\_SSL\_CONNECT\_ERROR (35) 错误的Fallback机制后。 再推进libcurl比例 --> 10%
+71. 14:19:06 吕邢瀚: (msg 71) @Gitea-Bot
+72. 14:19:07 Gitea-Bot: (msg 72) 本次扫描未检查出漏洞
+73. 14:19:07 Gitea-Bot: (msg 73) [Gitea-Bot 扫描目录列表信息，内容已省略]
+74. 14:19:07 Gitea-Bot: (msg 74) 本次扫描未检查出漏洞
+75. 14:19:07 Gitea-Bot: (msg 75) [Gitea-Bot 扫描目录列表信息，内容已省略]
+76. 14:19:17 Gitea-Bot: (msg 76) 本次扫描未检查出漏洞
+77. 14:19:17 Gitea-Bot: (msg 77) [Gitea-Bot 扫描目录列表信息，内容已省略]
+78. 14:20:17 Gitea-Bot: (msg 78) 「吕邢瀚」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/271
+79. 14:26:19 Gitea-Bot: (msg 79) 「王恒」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/270
+80. 14:26:19 Gitea-Bot: (msg 80) 韩竹发表了评论：@wangheng 这个也有冲突<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/270
+81. 14:27:25 Gitea-Bot: (msg 81) [Gitea-Bot 安全扫描报告，内容已省略]
+82. 14:27:25 Gitea-Bot: (msg 82) [Gitea-Bot 扫描目录列表信息，内容已省略]
+83. 14:27:33 Gitea-Bot: (msg 83) 本次扫描未检查出漏洞
+84. 14:27:33 Gitea-Bot: (msg 84) [Gitea-Bot 扫描目录列表信息，内容已省略]
+85. 14:29:27 Gitea-Bot: (msg 85) 「吕邢瀚」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/271
+86. 14:29:27 Gitea-Bot: (msg 86) 「王恒」评审通过：<br>https://gitea.jianguoyun.net.cn/nutstore-client/nutstore-wpf-client/pulls/270

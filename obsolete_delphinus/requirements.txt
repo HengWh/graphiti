@@ -1,0 +1,5 @@
+# requirements.txt
+httpx
+python-dotenv
+rich
+deepdiff

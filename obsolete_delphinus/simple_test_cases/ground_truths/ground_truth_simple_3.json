@@ -1,0 +1,47 @@
+{
+  "entities": [
+    {
+      "text": "赵敏",
+      "type": "Person",
+      "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+      "attributes": {
+        "normalized_text": "赵敏"
+      }
+    },
+    {
+      "text": "周工",
+      "type": "Person",
+      "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+      "attributes": {
+        "normalized_text": "周"
+      }
+    },
+    {
+      "text": "关于服务端渲染性能优化的技术预研报告.md",
+      "type": "Document",
+      "context": "上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+      "attributes": {
+        "title": "关于服务端渲染性能优化的技术预研报告",
+        "format": "md"
+      }
+    },
+    {
+      "text": "SSR性能优化预研_v1.draft.md",
+      "type": "Document",
+      "context": "文件是《SSR性能优化预研_v1.draft.md》。",
+      "attributes": {
+        "title": "SSR性能优化预研",
+        "version": "v1.draft",
+        "format": "md"
+      }
+    },
+    {
+      "text": "张博士",
+      "type": "Person",
+      "context": "但是里面有些数据需要张博士确认一下，我已经发给他了。",
+      "attributes": {
+        "normalized_text": "张"
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+[
+  { "id": "msg1", "sender": "李明", "text": "小王，那个盘古项目的PPT你看了吗？", "timestamp": "2023-10-26T14:00:00Z", "channel": "私聊-李明" },
+  { "id": "msg2", "sender": "小王", "text": "看了，我觉得第三页的数据有点问题。", "timestamp": "2023-10-26T14:01:00Z", "channel": "私聊-李明" },
+  { "id": "msg3", "sender": "李明", "text": "哦？哪里？我马上改。是这个文件吧，我重新发你一下。", "timestamp": "2023-10-26T14:02:00Z", "channel": "私聊-李明" },
+  { "id": "msg4", "sender": "李明", "text": "[文件分享] 盘古项目周报.pptx", "timestamp": "2023-10-26T14:02:30Z", "channel": "私聊-李明" }
+]

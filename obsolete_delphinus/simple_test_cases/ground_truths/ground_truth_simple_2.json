@@ -1,0 +1,39 @@
+{
+  "entities": [
+    {
+      "text": "产品部-王经理",
+      "type": "Person",
+      "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+      "attributes": {
+        "normalized_text": "王经理"
+      }
+    },
+    {
+      "text": "小杨",
+      "type": "Person",
+      "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+      "attributes": {
+        "normalized_text": "小杨"
+      }
+    },
+    {
+      "text": "用户访谈纪要_v2.pdf",
+      "type": "Document",
+      "context": "把《用户访谈纪要_v2.pdf》发我一下",
+      "attributes": {
+        "title": "用户访谈纪要",
+        "version": "v2",
+        "format": "pdf",
+        "meeting": "用户访谈"
+      }
+    },
+    {
+      "text": "法务部的李律师",
+      "type": "Person",
+      "context": "另外，让法务部的李律师也看一下。",
+      "attributes": {
+        "normalized_text": "李律师"
+      }
+    }
+  ]
+}

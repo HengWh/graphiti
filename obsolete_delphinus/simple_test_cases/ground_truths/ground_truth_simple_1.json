@@ -1,0 +1,29 @@
+{
+  "entities": [
+    {
+      "text": "张伟",
+      "type": "Person",
+      "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+      "attributes": {
+        "normalized_text": "张伟"
+      }
+    },
+    {
+      "text": "李雪",
+      "type": "Person",
+      "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+      "attributes": {
+        "normalized_text": "李雪"
+      }
+    },
+    {
+      "text": "2025年Q3产品路线图.docx",
+      "type": "Document",
+      "context": "你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+      "attributes": {
+        "title": "2025年Q3产品路线图",
+        "format": "docx"
+      }
+    }
+  ]
+}

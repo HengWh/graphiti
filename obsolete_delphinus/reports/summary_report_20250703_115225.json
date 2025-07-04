@@ -1,0 +1,863 @@
+[
+  {
+    "id": "dialogue_simple_1",
+    "mode": "LLM Only",
+    "passed": true,
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "diff": {},
+    "ground_truth": {
+      "entities": [
+        {
+          "text": "2025年Q3产品路线图.docx",
+          "type": "Document",
+          "context": "你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "title": "2025年Q3产品路线图",
+            "format": "docx"
+          }
+        },
+        {
+          "text": "张伟",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "张伟"
+          }
+        },
+        {
+          "text": "李雪",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "李雪"
+          }
+        }
+      ]
+    },
+    "prediction": {
+      "conversation_id": "dialogue_simple_1",
+      "entities": [
+        {
+          "text": "2025年Q3产品路线图.docx",
+          "type": "Document",
+          "context": "你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "title": "2025年Q3产品路线图",
+            "format": "docx"
+          }
+        },
+        {
+          "text": "张伟",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "张伟"
+          }
+        },
+        {
+          "text": "李雪",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "李雪"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "dialogue_simple_2",
+    "mode": "LLM Only",
+    "passed": false,
+    "metrics": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1_score": 0.5,
+      "tp": 2,
+      "fp": 2,
+      "fn": 2
+    },
+    "diff": {
+      "values_changed": {
+        "root['entities'][2]": {
+          "new_value": {
+            "text": "产品部-王经理",
+            "type": "Person",
+            "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "normalized_text": "王经理"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "法务部的李律师",
+            "context": "另外，让法务部的李律师也看一下。",
+            "attributes": {
+              "normalized_text": "李律师"
+            }
+          }
+        },
+        "root['entities'][0]": {
+          "new_value": {
+            "text": "小杨",
+            "type": "Person",
+            "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "normalized_text": "小杨"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "产品部-王经理",
+            "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "normalized_text": "王经理"
+            }
+          }
+        },
+        "root['entities'][3]": {
+          "new_value": {
+            "text": "用户访谈纪要_v2.pdf",
+            "type": "Document",
+            "context": "把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "title": "用户访谈纪要",
+              "version": "v2",
+              "format": "pdf",
+              "meeting": "用户访谈"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "用户访谈纪要_v2.pdf",
+            "context": "把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "title": "用户访谈纪要",
+              "version": "v2",
+              "format": "pdf"
+            }
+          }
+        },
+        "root['entities'][1]": {
+          "new_value": {
+            "text": "法务部的李律师",
+            "type": "Person",
+            "context": "另外，让法务部的李律师也看一下。",
+            "attributes": {
+              "normalized_text": "李律师"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "小杨",
+            "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+            "attributes": {
+              "normalized_text": "小杨"
+            }
+          }
+        }
+      }
+    },
+    "ground_truth": {
+      "entities": [
+        {
+          "entity_type": "Person",
+          "entity_name": "产品部-王经理",
+          "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "normalized_text": "王经理"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "小杨",
+          "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "normalized_text": "小杨"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "法务部的李律师",
+          "context": "另外，让法务部的李律师也看一下。",
+          "attributes": {
+            "normalized_text": "李律师"
+          }
+        },
+        {
+          "entity_type": "Document",
+          "entity_name": "用户访谈纪要_v2.pdf",
+          "context": "把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "title": "用户访谈纪要",
+            "version": "v2",
+            "format": "pdf"
+          }
+        }
+      ]
+    },
+    "prediction": {
+      "conversation_id": "dialogue_simple_2",
+      "entities": [
+        {
+          "text": "小杨",
+          "type": "Person",
+          "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "normalized_text": "小杨"
+          }
+        },
+        {
+          "text": "法务部的李律师",
+          "type": "Person",
+          "context": "另外，让法务部的李律师也看一下。",
+          "attributes": {
+            "normalized_text": "李律师"
+          }
+        },
+        {
+          "text": "产品部-王经理",
+          "type": "Person",
+          "context": "产品部-王经理：小杨，把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "normalized_text": "王经理"
+          }
+        },
+        {
+          "text": "用户访谈纪要_v2.pdf",
+          "type": "Document",
+          "context": "把《用户访谈纪要_v2.pdf》发我一下",
+          "attributes": {
+            "title": "用户访谈纪要",
+            "version": "v2",
+            "format": "pdf",
+            "meeting": "用户访谈"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "dialogue_simple_3",
+    "mode": "LLM Only",
+    "passed": false,
+    "metrics": {
+      "precision": 0.6,
+      "recall": 0.6,
+      "f1_score": 0.6,
+      "tp": 3,
+      "fp": 2,
+      "fn": 2
+    },
+    "diff": {
+      "values_changed": {
+        "root['entities'][2]": {
+          "new_value": {
+            "text": "周工",
+            "type": "Person",
+            "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+            "attributes": {
+              "normalized_text": "周"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "周工",
+            "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”",
+            "attributes": {
+              "normalized_text": "周工"
+            }
+          }
+        },
+        "root['entities'][0]": {
+          "new_value": {
+            "text": "SSR性能优化预研_v1.draft.md",
+            "type": "Document",
+            "context": "文件是《SSR性能优化预研_v1.draft.md》。",
+            "attributes": {
+              "title": "SSR性能优化预研",
+              "version": "v1.draft",
+              "format": "md"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "SSR性能优化预研_v1.draft.md",
+            "context": "文件是《SSR性能优化预研_v1.draft.md》。",
+            "attributes": {
+              "title": "SSR性能优化预研",
+              "version": "v1.draft",
+              "format": "md"
+            }
+          }
+        },
+        "root['entities'][3]": {
+          "new_value": {
+            "text": "张博士",
+            "type": "Person",
+            "context": "但是里面有些数据需要张博士确认一下，我已经发给他了。",
+            "attributes": {
+              "normalized_text": "张"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "张博士",
+            "context": "但是里面有些数据需要张博士确认一下",
+            "attributes": {
+              "normalized_text": "张博士"
+            }
+          }
+        },
+        "root['entities'][4]": {
+          "new_value": {
+            "text": "赵敏",
+            "type": "Person",
+            "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+            "attributes": {
+              "normalized_text": "赵敏"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "赵敏",
+            "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”",
+            "attributes": {
+              "normalized_text": "赵敏"
+            }
+          }
+        },
+        "root['entities'][1]": {
+          "new_value": {
+            "text": "关于服务端渲染性能优化的技术预研报告.md",
+            "type": "Document",
+            "context": "上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+            "attributes": {
+              "title": "关于服务端渲染性能优化的技术预研报告",
+              "format": "md"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "关于服务端渲染性能优化的技术预研报告.md",
+            "context": "上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+            "attributes": {
+              "title": "关于服务端渲染性能优化的技术预研报告",
+              "format": "md"
+            }
+          }
+        }
+      }
+    },
+    "ground_truth": {
+      "entities": [
+        {
+          "entity_type": "Document",
+          "entity_name": "SSR性能优化预研_v1.draft.md",
+          "context": "文件是《SSR性能优化预研_v1.draft.md》。",
+          "attributes": {
+            "title": "SSR性能优化预研",
+            "version": "v1.draft",
+            "format": "md"
+          }
+        },
+        {
+          "entity_type": "Document",
+          "entity_name": "关于服务端渲染性能优化的技术预研报告.md",
+          "context": "上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+          "attributes": {
+            "title": "关于服务端渲染性能优化的技术预研报告",
+            "format": "md"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "周工",
+          "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”",
+          "attributes": {
+            "normalized_text": "周工"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "张博士",
+          "context": "但是里面有些数据需要张博士确认一下",
+          "attributes": {
+            "normalized_text": "张博士"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "赵敏",
+          "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”",
+          "attributes": {
+            "normalized_text": "赵敏"
+          }
+        }
+      ]
+    },
+    "prediction": {
+      "conversation_id": "dialogue_simple_3",
+      "entities": [
+        {
+          "text": "SSR性能优化预研_v1.draft.md",
+          "type": "Document",
+          "context": "文件是《SSR性能优化预研_v1.draft.md》。",
+          "attributes": {
+            "title": "SSR性能优化预研",
+            "version": "v1.draft",
+            "format": "md"
+          }
+        },
+        {
+          "text": "关于服务端渲染性能优化的技术预研报告.md",
+          "type": "Document",
+          "context": "上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+          "attributes": {
+            "title": "关于服务端渲染性能优化的技术预研报告",
+            "format": "md"
+          }
+        },
+        {
+          "text": "周工",
+          "type": "Person",
+          "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+          "attributes": {
+            "normalized_text": "周"
+          }
+        },
+        {
+          "text": "张博士",
+          "type": "Person",
+          "context": "但是里面有些数据需要张博士确认一下，我已经发给他了。",
+          "attributes": {
+            "normalized_text": "张"
+          }
+        },
+        {
+          "text": "赵敏",
+          "type": "Person",
+          "context": "赵敏：周工，上次提到的“关于服务端渲染性能优化的技术预研报告.md”，你完成了吗？",
+          "attributes": {
+            "normalized_text": "赵敏"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "dialogue_simple_4",
+    "mode": "LLM Only",
+    "passed": false,
+    "metrics": {
+      "precision": 0.7,
+      "recall": 0.7,
+      "f1_score": 0.7,
+      "tp": 7,
+      "fp": 3,
+      "fn": 3
+    },
+    "diff": {
+      "values_changed": {
+        "root['entities'][8]": {
+          "new_value": {
+            "text": "新兵训练实战演练.pptx",
+            "type": "Document",
+            "context": "整理了一份《新兵训练实战演练.pptx》，用于实际操练。",
+            "attributes": {
+              "title": "新兵训练实战演练",
+              "format": "pptx"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "新兵训练实战演练.pptx",
+            "context": "整理了一份《新兵训练实战演练.pptx》，用于实际操练。",
+            "attributes": {
+              "title": "新兵训练实战演练",
+              "format": "pptx"
+            }
+          }
+        },
+        "root['entities'][5]": {
+          "new_value": {
+            "text": "主公",
+            "type": "Person",
+            "context": "诸葛亮：主公，培训手册我已经审阅过了",
+            "attributes": {
+              "normalized_text": "刘备"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "关羽将军",
+            "context": "我还让关羽将军根据手册内容，整理了一份",
+            "attributes": {
+              "normalized_text": "关羽"
+            }
+          }
+        },
+        "root['entities'][2]": {
+          "new_value": {
+            "text": "公司信息安全规范_FINAL_v4.0.pdf",
+            "type": "Document",
+            "context": "让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+            "attributes": {
+              "title": "公司信息安全规范",
+              "version": "FINAL_v4.0",
+              "format": "pdf"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "IT部门的张工",
+            "context": "我已经联系了IT部门的张工",
+            "attributes": {
+              "normalized_text": "张工"
+            }
+          }
+        },
+        "root['entities'][6]": {
+          "new_value": {
+            "text": "孔明",
+            "type": "Person",
+            "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+            "attributes": {
+              "normalized_text": "孔明"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "刘备",
+            "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+            "attributes": {
+              "normalized_text": "刘备"
+            }
+          }
+        },
+        "root['entities'][0]": {
+          "new_value": {
+            "text": "2025新员工入职培训手册_v3.docx",
+            "type": "Document",
+            "context": "发了一份《2025新员工入职培训手册_v3.docx》，内容很详尽。",
+            "attributes": {
+              "title": "2025新员工入职培训手册",
+              "version": "v3",
+              "format": "docx"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "2025新员工入职培训手册_v3.docx",
+            "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+            "attributes": {
+              "title": "2025新员工入职培训手册",
+              "version": "v3",
+              "format": "docx"
+            }
+          }
+        },
+        "root['entities'][9]": {
+          "new_value": {
+            "text": "诸葛亮",
+            "type": "Person",
+            "context": "诸葛亮：主公，培训手册我已经审阅过了，内容没有问题。",
+            "attributes": {
+              "normalized_text": "诸葛亮"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "诸葛亮",
+            "context": "诸葛亮：主公，培训手册我已经审阅过了",
+            "attributes": {
+              "normalized_text": "诸葛亮"
+            }
+          }
+        },
+        "root['entities'][3]": {
+          "new_value": {
+            "text": "关羽将军",
+            "type": "Person",
+            "context": "我还让关羽将军根据手册内容，整理了一份《新兵训练实战演练.pptx》",
+            "attributes": {
+              "normalized_text": "关羽"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "公司信息安全规范.pdf",
+            "context": "我发现手册里引用的《公司信息安全规范.pdf》还是去年的旧版本",
+            "attributes": {
+              "title": "公司信息安全规范",
+              "format": "pdf"
+            }
+          }
+        },
+        "root['entities'][7]": {
+          "new_value": {
+            "text": "IT部门的张工",
+            "type": "Person",
+            "context": "我已经联系了IT部门的张工，让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+            "attributes": {
+              "normalized_text": "张工"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "孔明",
+            "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+            "attributes": {
+              "normalized_text": "诸葛亮"
+            }
+          }
+        },
+        "root['entities'][4]": {
+          "new_value": {
+            "text": "刘备",
+            "type": "Person",
+            "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+            "attributes": {
+              "normalized_text": "刘备"
+            }
+          },
+          "old_value": {
+            "entity_type": "Document",
+            "entity_name": "公司信息安全规范_FINAL_v4.0.pdf",
+            "context": "让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+            "attributes": {
+              "title": "公司信息安全规范",
+              "version": "FINAL_v4.0",
+              "format": "pdf"
+            }
+          }
+        },
+        "root['entities'][1]": {
+          "new_value": {
+            "text": "公司信息安全规范.pdf",
+            "type": "Document",
+            "context": "手册里引用的《公司信息安全规范.pdf》还是去年的旧版本",
+            "attributes": {
+              "title": "公司信息安全规范",
+              "format": "pdf"
+            }
+          },
+          "old_value": {
+            "entity_type": "Person",
+            "entity_name": "HR的陈经理",
+            "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+            "attributes": {
+              "normalized_text": "陈经理"
+            }
+          }
+        }
+      },
+      "iterable_item_added": {
+        "root['entities'][10]": {
+          "text": "HR的陈经理",
+          "type": "Person",
+          "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+          "attributes": {
+            "normalized_text": "陈经理"
+          }
+        }
+      }
+    },
+    "ground_truth": {
+      "entities": [
+        {
+          "entity_type": "Document",
+          "entity_name": "2025新员工入职培训手册_v3.docx",
+          "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+          "attributes": {
+            "title": "2025新员工入职培训手册",
+            "version": "v3",
+            "format": "docx"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "HR的陈经理",
+          "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+          "attributes": {
+            "normalized_text": "陈经理"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "IT部门的张工",
+          "context": "我已经联系了IT部门的张工",
+          "attributes": {
+            "normalized_text": "张工"
+          }
+        },
+        {
+          "entity_type": "Document",
+          "entity_name": "公司信息安全规范.pdf",
+          "context": "我发现手册里引用的《公司信息安全规范.pdf》还是去年的旧版本",
+          "attributes": {
+            "title": "公司信息安全规范",
+            "format": "pdf"
+          }
+        },
+        {
+          "entity_type": "Document",
+          "entity_name": "公司信息安全规范_FINAL_v4.0.pdf",
+          "context": "让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+          "attributes": {
+            "title": "公司信息安全规范",
+            "version": "FINAL_v4.0",
+            "format": "pdf"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "关羽将军",
+          "context": "我还让关羽将军根据手册内容，整理了一份",
+          "attributes": {
+            "normalized_text": "关羽"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "刘备",
+          "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+          "attributes": {
+            "normalized_text": "刘备"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "孔明",
+          "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+          "attributes": {
+            "normalized_text": "诸葛亮"
+          }
+        },
+        {
+          "entity_type": "Document",
+          "entity_name": "新兵训练实战演练.pptx",
+          "context": "整理了一份《新兵训练实战演练.pptx》，用于实际操练。",
+          "attributes": {
+            "title": "新兵训练实战演练",
+            "format": "pptx"
+          }
+        },
+        {
+          "entity_type": "Person",
+          "entity_name": "诸葛亮",
+          "context": "诸葛亮：主公，培训手册我已经审阅过了",
+          "attributes": {
+            "normalized_text": "诸葛亮"
+          }
+        }
+      ]
+    },
+    "prediction": {
+      "conversation_id": "dialogue_simple_4",
+      "entities": [
+        {
+          "text": "2025新员工入职培训手册_v3.docx",
+          "type": "Document",
+          "context": "发了一份《2025新员工入职培训手册_v3.docx》，内容很详尽。",
+          "attributes": {
+            "title": "2025新员工入职培训手册",
+            "version": "v3",
+            "format": "docx"
+          }
+        },
+        {
+          "text": "公司信息安全规范.pdf",
+          "type": "Document",
+          "context": "手册里引用的《公司信息安全规范.pdf》还是去年的旧版本",
+          "attributes": {
+            "title": "公司信息安全规范",
+            "format": "pdf"
+          }
+        },
+        {
+          "text": "公司信息安全规范_FINAL_v4.0.pdf",
+          "type": "Document",
+          "context": "让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+          "attributes": {
+            "title": "公司信息安全规范",
+            "version": "FINAL_v4.0",
+            "format": "pdf"
+          }
+        },
+        {
+          "text": "关羽将军",
+          "type": "Person",
+          "context": "我还让关羽将军根据手册内容，整理了一份《新兵训练实战演练.pptx》",
+          "attributes": {
+            "normalized_text": "关羽"
+          }
+        },
+        {
+          "text": "刘备",
+          "type": "Person",
+          "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+          "attributes": {
+            "normalized_text": "刘备"
+          }
+        },
+        {
+          "text": "主公",
+          "type": "Person",
+          "context": "诸葛亮：主公，培训手册我已经审阅过了",
+          "attributes": {
+            "normalized_text": "刘备"
+          }
+        },
+        {
+          "text": "孔明",
+          "type": "Person",
+          "context": "刘备：孔明，我们的新员工培训计划进行得怎么样了？",
+          "attributes": {
+            "normalized_text": "孔明"
+          }
+        },
+        {
+          "text": "IT部门的张工",
+          "type": "Person",
+          "context": "我已经联系了IT部门的张工，让他提供最新的`公司信息安全规范_FINAL_v4.0.pdf`。",
+          "attributes": {
+            "normalized_text": "张工"
+          }
+        },
+        {
+          "text": "新兵训练实战演练.pptx",
+          "type": "Document",
+          "context": "整理了一份《新兵训练实战演练.pptx》，用于实际操练。",
+          "attributes": {
+            "title": "新兵训练实战演练",
+            "format": "pptx"
+          }
+        },
+        {
+          "text": "诸葛亮",
+          "type": "Person",
+          "context": "诸葛亮：主公，培训手册我已经审阅过了，内容没有问题。",
+          "attributes": {
+            "normalized_text": "诸葛亮"
+          }
+        },
+        {
+          "text": "HR的陈经理",
+          "type": "Person",
+          "context": "我看到HR的陈经理发了一份《2025新员工入职培训手册_v3.docx》",
+          "attributes": {
+            "normalized_text": "陈经理"
+          }
+        }
+      ]
+    }
+  }
+]

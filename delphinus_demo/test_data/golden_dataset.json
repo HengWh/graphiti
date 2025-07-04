@@ -1,0 +1,33 @@
+[
+  {
+    "query": "上周李明发我的关于‘盘古项目’的PPT。",
+    "description": "期望找到与查询直接相关的PPT文档",
+    "expected": {
+      "type": "Document",
+      "checks": {
+        "name_contains": "盘古项目周报",
+        "type_equals": "ppt"
+      }
+    }
+  },
+  {
+    "query": "谁和小王讨论了盘古项目？",
+    "description": "期望找到包含李明和小王的对话片段",
+    "expected": {
+      "type": "ConversationSegment",
+      "checks": {
+        "participants_contain_all": ["李明", "小王"]
+      }
+    }
+  },
+  {
+    "query": "关于移动端UI改版的结论是什么？",
+    "description": "期望找到包含特定决策的对话",
+    "expected": {
+      "type": "ConversationSegment",
+      "checks": {
+        "decisions_contain": "采纳方案B"
+      }
+    }
+  }
+]

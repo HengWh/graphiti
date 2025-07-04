@@ -1,0 +1,75 @@
+[
+  {
+    "id": "dialogue_simple_1",
+    "mode": "LLM Only",
+    "passed": true,
+    "metrics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0
+    },
+    "diff": {},
+    "ground_truth": {
+      "entities": [
+        {
+          "text": "2025年Q3产品路线图.docx",
+          "type": "Document",
+          "context": "你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "title": "2025年Q3产品路线图",
+            "format": "docx"
+          }
+        },
+        {
+          "text": "张伟",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "张伟"
+          }
+        },
+        {
+          "text": "李雪",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "李雪"
+          }
+        }
+      ]
+    },
+    "prediction": {
+      "conversation_id": "dialogue_simple_1",
+      "entities": [
+        {
+          "text": "2025年Q3产品路线图.docx",
+          "type": "Document",
+          "context": "你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "title": "2025年Q3产品路线图",
+            "format": "docx"
+          }
+        },
+        {
+          "text": "张伟",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "张伟"
+          }
+        },
+        {
+          "text": "李雪",
+          "type": "Person",
+          "context": "张伟：李雪，你看到我发给你的那个《2025年Q3产品路线图.docx》了吗？",
+          "attributes": {
+            "normalized_text": "李雪"
+          }
+        }
+      ]
+    }
+  }
+]
