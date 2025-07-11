@@ -174,6 +174,8 @@ class GeminiClient(LLMClient):
                     'Do not include any explanatory text before or after the JSON.\n\n'
                 )
 
+            # print(f"LLM client send messages:\n {messages}")
+
             # Add messages content
             # First check for a system message
             if messages and messages[0].role == 'system':
@@ -222,7 +224,7 @@ class GeminiClient(LLMClient):
                     # Return as a dictionary for API consistency
                     return validated_model.model_dump()
                 except Exception as e:
-                    raise Exception(f'Failed to parse structured response: {e}') from e
+                    raise Exception(f'Failed to parse structured response: {e}\nResponse text: {response.text}') from e
 
             # Otherwise, return the response text as a dictionary
             return {'content': response.text}

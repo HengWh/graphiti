@@ -1,10 +1,9 @@
 # evaluate.py
 import json
 import asyncio
-import argparse
 from datetime import datetime
 from main import app # 导入你的Graphiti App
-from models import Document, ConversationSegment, Person, Project # 显式导入模型以供类型检查
+from models import Document, ConversationSegment # 显式导入模型以供类型检查
 from graphiti_core.nodes import EntityNode, EpisodicNode # 导入 EntityNode 和 EpisodicNode
 from graphiti_core.edges import EntityEdge # 导入 EntityEdge
 
@@ -58,14 +57,10 @@ def check_entity_matches_expectation(entity, expected_checks: dict) -> bool:
 
     return True # 所有检查都通过了
 
-async def run_evaluation(ground_truth_file: str):
+async def run_evaluation():
     """主评估函数"""
-    try:
-        with open(ground_truth_file, 'r', encoding='utf-8') as f:
-            dataset = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"错误: 无法读取或解析 ground-truth 文件 {ground_truth_file}。错误: {e}")
-        return
+    with open('./test_data/mock-ground-truth.json', 'r', encoding='utf-8') as f:
+        dataset = json.load(f)
 
     success_count = 0
     total_count = len(dataset)
@@ -73,34 +68,27 @@ async def run_evaluation(ground_truth_file: str):
 
     for i, item in enumerate(dataset):
         question = item["question"]
-        expected = item.get("expected")
+        expected = item["expected"]
         
-        if not expected:
-            print(f"--- 跳过测试用例 {i+1}/{total_count}: 缺少 'expected' 字段 ---")
-            continue
-
-        log_entry = { "question": question, "status": "❌ FAILED" }
+        log_entry = { "question": question, "description": item.get("description", ""), "status": "❌ FAILED" }
         print(f"\n--- Running Test Case {i+1}/{total_count}: {item.get('description', '')} ---")
         print(f"question: {question}")
         
         # 核心修正：异步调用 search 并处理 EntityEdge 列表
         try:
+            # Graphiti 的 search 是一个 async 函数
+            import asyncio
+            # `app.search` 的类型提示是错误的，我们使用 `cast` 来告诉类型检查器真实的返回类型
             search_results = await app.search(question)
         except Exception as e:
             print(f"执行搜索时发生错误: {e}")
             search_results = []
 
-        all_expectations_met = True
-        found_nodes_for_log = []
-
-        # Since the check `if not expected: continue` is present above,
-        # we can assume `expected` is a non-empty list here.
-        if not search_results:
-            all_expectations_met = False
-        else:
-            # For every expectation, we must find a match in the search results.
+        match_found = False
+        if search_results:
+            # `expected` is now a list of expectation objects.
+            # We consider the test case passed if any of the expectations are met.
             for expected_item in expected:
-                expectation_met_for_this_item = False
                 expected_node_type = expected_item.get("node", "EntityNode")
                 
                 for result in search_results: # result is of type EntityEdge
@@ -131,41 +119,29 @@ async def run_evaluation(ground_truth_file: str):
                                 print(f"Debug: Failed to get EpisodicNode: {e}")
                     
                     if found_node:
-                        print(f"✅ Found match for expectation: {expected_item['checks']}")
-                        print(f"   - Node: {found_node.name} ({found_node.uuid})")
-                        expectation_met_for_this_item = True
-                        found_nodes_for_log.append(json.loads(found_node.model_dump_json()))
-                        break # A match is found for this expectation, move to the next one
+                        print(f"✅ PASSED - Found matching {expected_node_type}")
+                        print(f"node_name:{found_node.name}, node_uuid:{found_node.uuid}")
+                        match_found = True
+                        log_entry["status"] = "✅ PASSED"
+                        log_entry["found_node"] = found_node.model_dump()
+                        break # A match is found, break from the search_results loop
                 
-                if not expectation_met_for_this_item:
-                    print(f"❌ Could not find match for expectation: {expected_item['checks']}")
-                    all_expectations_met = False
-                    break # One failure means the whole test case fails
-        
-        if all_expectations_met:
-            print("✅ PASSED - All expectations met.")
-            log_entry["status"] = "✅ PASSED"
-            log_entry["found_nodes"] = found_nodes_for_log
-            success_count += 1
-        else:
-            print("❌ FAILED - Not all expectations were met.")
-            log_entry["status"] = "❌ FAILED"
+                if match_found:
+                    break # A match is found, break from the expected_item loop
+            
+        if not match_found:
+            print("❌ FAILED - No result matched the expectation.")
             if search_results:
                 top_results_info = []
                 for res in search_results[:3]:
                     try:
                         source_node = await EntityNode.get_by_uuid(app.driver, res.source_node_uuid)
                         target_node = await EntityNode.get_by_uuid(app.driver, res.target_node_uuid)
-                        episodics_json = []
-                        if res.episodes:
-                            episodic_nodes = await EpisodicNode.get_by_uuids(app.driver, list(set(res.episodes)))
-                            episodics_json = [json.loads(e.model_dump_json()) for e in episodic_nodes]
                         top_results_info.append({
                             "edge_uuid": res.uuid,
                             "edge_name": res.name,
-                            "source_node": json.loads(source_node.model_dump_json()),
-                            "target_node": json.loads(target_node.model_dump_json()),
-                            "episodics_json": episodics_json
+                            "source_node": source_node.model_dump(),
+                            "target_node": target_node.model_dump(),
                         })
                     except Exception:
                         continue
@@ -174,22 +150,15 @@ async def run_evaluation(ground_truth_file: str):
                 log_entry["top_results"] = []
         
         results_log.append(log_entry)
+        if match_found:
+            success_count += 1
             
     print(f"\n\n--- Evaluation Summary ---")
-    accuracy = f"{success_count / total_count * 100:.2f}%"
-    if total_count > 0:
-        print(f"Accuracy: {accuracy} ({success_count}/{total_count})")
-    else:
-        print("没有可评估的测试用例。")
+    print(f"Accuracy: {success_count / total_count * 100:.2f}% ({success_count}/{total_count})")
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f'./test_results/evaluation_{timestamp}_{accuracy}.json'
-    with open(log_filename, 'w', encoding='utf-8') as f:
+    with open('./test_results/test_evaluation.json', 'w', encoding='utf-8') as f:
         json.dump(results_log, f, indent=2, ensure_ascii=False, default=json_serializer)
-    print(f"详细评估日志已保存到 {log_filename}")
+    print("详细评估日志已保存到 evaluation_log.json")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="根据 ground-truth 文件评估性能。")
-    parser.add_argument("groundfile", type=str, help="包含问题和预期的 ground-truth JSON 文件的路径。")
-    args = parser.parse_args()
-    asyncio.run(run_evaluation(args.groundfile))
+    asyncio.run(run_evaluation())

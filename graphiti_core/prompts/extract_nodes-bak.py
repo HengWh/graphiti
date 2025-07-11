@@ -87,32 +87,29 @@ def extract_message(context: dict[str, Any]) -> list[Message]:
 {context['entity_types']}
 </ENTITY TYPES>
 
-指令：
+Instructions:
 
-你将收到一段对话上下文(conversation context)和一个当前消息(CURRENT MESSAGE)。你的任务是，从当前消息中提取明确提及或隐含提及的实体节点(entity nodes)。
+You are given a conversation context and a CURRENT MESSAGE. Your task is to extract **entity nodes** mentioned **explicitly or implicitly** in the CURRENT MESSAGE.
+Pronoun references such as he/she/they or this/that/those should be disambiguated to the names of the 
+reference entities.
 
-对于像“他/她/他们”或“这个/那个/这些”这样的代词指代，你需要消除其歧义，并将其解析为所指代的实体的具体名称。
+1. **Speaker Extraction**: Always extract the speaker (the part before the colon `:` in each dialogue line) as the first entity node.
+   - If the speaker is mentioned again in the message, treat both mentions as a **single entity**.
 
-1. 说话人提取 (Speaker Extraction):
-必须始终将说话人（即每行对话中冒号:之前的部分）提取为第一个实体节点。
-如果说话人的名字在消息内容中再次被提及，应将这两次提及视为一个单一实体。
+2. **Entity Identification**:
+   - Extract all significant entities, concepts, or actors that are **explicitly or implicitly** mentioned in the CURRENT MESSAGE.
+   - **Exclude** entities mentioned only in the PREVIOUS MESSAGES (they are for context only).
 
-2. 实体识别 (Entity Identification):
-提取所有在当前消息中明确或隐含提及的重要实体、概念或参与者。
-务必排除那些仅在过往消息(PREVIOUS MESSAGES)中提及的实体（过往消息仅用于提供上下文，不应成为提取目标）。
-**Person**：要将指向同一真实实体的不同表述（例如："王强"、"王强哥"、"新人王强"）进行归一化，提取出最核心、最简洁的官方名称。
-**Document**: 一个具体的、有明确名称的文档、文件、报告、日志等。
+3. **Entity Classification**:
+   - Use the descriptions in ENTITY TYPES to classify each extracted entity.
+   - Assign the appropriate `entity_type_id` for each one.
 
-3. 实体分类 (Entity Classification):
-使用 实体类型(ENTITY TYPES) 定义中的描述，来为每一个提取出的实体进行分类。
-为每个实体分配恰当的 entity_type_id。
+4. **Exclusions**:
+   - Do NOT extract entities representing relationships or actions.
+   - Do NOT extract dates, times, or other temporal information—these will be handled separately.
 
-4. 排除项 (Exclusions):
-不要提取代表“关系”或“动作”的实体。
-不要提取日期、时间或其他时间类信息——这些信息将由其他流程单独处理。
-
-5. 格式要求 (Formatting):
-在命名实体时，必须明确且无歧义（例如，当有全名可用时，就使用全名，而不是昵称或姓氏）。
+5. **Formatting**:
+   - Be **explicit and unambiguous** in naming entities (e.g., use full names when available).
 
 {context['custom_prompt']}
 """
@@ -139,14 +136,13 @@ def extract_json(context: dict[str, Any]) -> list[Message]:
 
 {context['custom_prompt']}
 
-指令：
-根据上方提供的源描述和 JSON 数据，请从该 JSON 中提取出相关的实体。
-对于每一个提取出的实体，请同时依据我们提供的实体类型 (ENTITY TYPES) 及其描述，来判断它属于哪种类型。
-请通过提供相应的 entity_type_id 来明确指出该实体的类型。
+Given the above source description and JSON, extract relevant entities from the provided JSON.
+For each entity extracted, also determine its entity type based on the provided ENTITY TYPES and their descriptions.
+Indicate the classified entity type by providing its entity_type_id.
 
-指导原则：
-优先提取代表整个 JSON 对象核心身份的实体。通常，这个实体的信息会包含在 "name" 或 "user"这类的字段中。
-不要提取任何包含日期的属性值。
+Guidelines:
+1. Always try to extract an entities that the JSON represents. This will often be something like a "name" or "user field
+2. Do NOT extract any properties that contain dates
 """
     return [
         Message(role='system', content=sys_prompt),
@@ -166,19 +162,17 @@ def extract_text(context: dict[str, Any]) -> list[Message]:
 {context['entity_types']}
 </ENTITY TYPES>
 
-指令：
-根据上方提供的文本（TEXT），从中提取出明确或隐含提及的实体。
-对于每一个提取出的实体，请同时依据我们提供的实体类型（ENTITY TYPES）及其描述，来判断它属于哪种类型。
-如果文本中明确说明了 "参与者" 列表, 则实体类型中的person, 应只包含参与者列表。
-请通过提供相应的 entity_type_id 来明确指出该实体的类型。
+Given the above text, extract entities from the TEXT that are explicitly or implicitly mentioned.
+For each entity extracted, also determine its entity type based on the provided ENTITY TYPES and their descriptions.
+Indicate the classified entity type by providing its entity_type_id.
 
 {context['custom_prompt']}
 
-指导原则：
-提取文本中提及的重要实体、概念或参与者。
-避免为关系或动作创建节点。
-避免为时间信息（如日期、时间或年份）创建节点（这些信息后续会被添加到“关系边”上）。
-在命名节点时，请尽可能明确，使用全名并避免使用缩写。
+Guidelines:
+1. Extract significant entities, concepts, or actors mentioned in the conversation.
+2. Avoid creating nodes for relationships or actions.
+3. Avoid creating nodes for temporal information like dates, times or years (these will be added to edges later).
+4. Be as explicit as possible in your node names, using full names and avoiding abbreviations.
 """
     return [
         Message(role='system', content=sys_prompt),

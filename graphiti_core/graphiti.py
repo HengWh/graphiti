@@ -312,6 +312,7 @@ class Graphiti:
         Caution: Running this method on a large existing database may take some time
         and could impact database performance during execution.
         """
+        print(f"DEFAULT_DATABASE_GRAPHITI: '{DEFAULT_DATABASE}'") # <--- 致命检查点！
         await build_indices_and_constraints(self.driver, delete_existing)
 
     async def retrieve_episodes(

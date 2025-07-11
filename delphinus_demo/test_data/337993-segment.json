@@ -1,0 +1,33 @@
+[
+  {
+        "id": "segment_004",
+        "task_id":"337993",
+        "task_name":"LibCurl Sentry上报问题汇总和处理",
+        "participants": [
+            "工作台助手(机器人)",
+            "王恒(客户端)",
+            "韩竹(CTO)",
+            "Gitea-Bot(机器人)",
+            "吕邢瀚(客户端)"
+        ],
+        "messages": [
+            "2025-04-14 20:45:24 工作台助手(机器人): (msg 1744634724804) 「王恒(客户端)」 重新打开了任务",
+            "2025-04-14 20:56:10 王恒(客户端): (msg 1744635370693) 用户那里反馈一个 Libcurl的错误，35，CURLE_SSL_CONNECT_ERROR  <br><br>如右侧问题7<br><br>远程用户，获取了debug日志，看起来原因是本地的 ca-bundle.crt 证书无效？<br><br>关键信息如下：<br><br>[CurlDebugCallback] CURLINFO_TEXT: **TLS connect error: error:1100009E:X509 V3 routines::invalid certificate**<br><br>[内嵌图片: image.png]",
+            "2025-04-14 21:03:03 王恒(客户端): (msg 1744635783227) 用户电脑上，原生的NetFramework HttpRequest 正常。",
+            "2025-04-17 16:01:32 韩竹(CTO): (msg 1744876892614) (reply to 1744635370693) @王恒 我怀疑是导入的系统证书有问题，也许不导入系统证书能解救问题？<br><br>我们只有在用户配置了代理的情况下才考虑导入系统证书？否则只导入我们自己的证书？",
+            "2025-05-09 10:36:14 王恒(客户端): (msg 1746758174652) ### 记录<br><br>Libcurl rollout 比例由1% 调整至 3%",
+            "2025-05-26 15:40:44 王恒(客户端): (msg 1748245244337) ### **记录**<br><br>Libcurl rollout 比例由3% 调整至 5%",
+            "2025-05-26 15:53:58 王恒(客户端): (msg 1748246038563) 如果Libcurl遇到 CURLE_SSL_CONNECT_ERROR (35)错误，则自动切换为Net原生HttpRequest<br><br><https://gitea.jianguoyun.net.cn/wangheng/nutstore-wpf-client/src/branch/WS-337993-Fallback-to-net-http-request-when-CURLE_SSL_CONNECT_ERROR>",
+            "2025-05-26 15:56:41 王恒(客户端): (msg 1748246201066) 提高Libcurl比例至5% 再观测一周。 如果遇到此问题的用户，依然是系统自带的curl.exe都不行。 就确定执行Fallback机制。",
+            "2025-06-24 11:43:18 王恒(客户端): (msg 1750736598093) @Gitea-Bot",
+            "2025-06-24 11:49:27 Gitea-Bot(机器人): (msg 1750736967501) [Gitea-Bot 安全扫描报告，内容已省略]",
+            "2025-06-24 11:49:27 Gitea-Bot(机器人): (msg 1750736967555) [Gitea-Bot 扫描目录列表信息，内容已省略]",
+            "2025-06-24 11:51:19 王恒(客户端): (msg 1750737079909) (reply to 1748246038563) 记录：<br><br>增加对 CURLE_SSL_CONNECT_ERROR (35) 错误的Fallback机制后。 再推进libcurl比例 --> 10%"
+        ],
+        "timeRange": {
+            "start_time": 1744634724804,
+            "end_time": 1751367436120
+        },
+        "summary": "任务因新的用户反馈(CURLE_SSL_CONNECT_ERROR)被重新打开。团队的策略从根治问题转向制定健壮的降级方案。王恒提出并实施了当Libcurl遇到特定SSL错误时自动回退到.NET原生HttpRequest的机制。随后，团队逐步提高Libcurl在生产环境的灰度发布比例，并最终合并了该降级方案的代码。"
+    }
+]

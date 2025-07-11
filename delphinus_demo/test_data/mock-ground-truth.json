@@ -1,0 +1,14 @@
+[
+  {
+    "question": "李明发给小王的那份文件是什么?",
+    "answer": "李明: [文件分享] 盘古项目周报.pptx",
+    "expected": [{
+      "node": "EntityNode",
+      "checks": {
+        "labels_contains":"Document",
+        "fullname_contains": "盘古项目周报",
+        "type_equals": "ppt"
+      }
+    }]
+  }
+]

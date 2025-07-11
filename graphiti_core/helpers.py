@@ -23,6 +23,8 @@ from typing import Any
 
 import numpy as np
 from dotenv import load_dotenv
+load_dotenv()
+
 from neo4j import time as neo4j_time
 from numpy._typing import NDArray
 from pydantic import BaseModel
@@ -30,9 +32,7 @@ from typing_extensions import LiteralString
 
 from graphiti_core.errors import GroupIdValidationError
 
-load_dotenv()
-
-DEFAULT_DATABASE = os.getenv('DEFAULT_DATABASE', 'default_db')
+DEFAULT_DATABASE = os.getenv('DEFAULT_DATABASE', 'neo4j')
 USE_PARALLEL_RUNTIME = bool(os.getenv('USE_PARALLEL_RUNTIME', False))
 SEMAPHORE_LIMIT = int(os.getenv('SEMAPHORE_LIMIT', 20))
 MAX_REFLEXION_ITERATIONS = int(os.getenv('MAX_REFLEXION_ITERATIONS', 0))

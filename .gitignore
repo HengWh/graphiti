@@ -166,3 +166,5 @@ cache.db*
 
 # All DS_Store files
 .DS_Store
+delphinus_demo/test_data/20250707_data
+delphinus_demo/test_results

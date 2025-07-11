@@ -54,9 +54,9 @@ def summarize_pair(context: dict[str, Any]) -> list[Message]:
         Message(
             role='user',
             content=f"""
-        Synthesize the information from the following two summaries into a single succinct summary.
-        
-        Summaries must be under 250 words.
+        将以下两份摘要的信息整合成一份简洁的摘要。
+
+        摘要必须250字以内。
 
         Summaries:
         {json.dumps(context['node_summaries'], indent=2)}
@@ -80,16 +80,14 @@ def summarize_context(context: dict[str, Any]) -> list[Message]:
         {json.dumps(context['episode_content'], indent=2)}
         </MESSAGES>
         
-        Given the above MESSAGES and the following ENTITY name, create a summary for the ENTITY. Your summary must only use
-        information from the provided MESSAGES. Your summary should also only contain information relevant to the
-        provided ENTITY. Summaries must be under 250 words.
-        
-        In addition, extract any values for the provided entity properties based on their descriptions.
-        If the value of the entity property cannot be found in the current context, set the value of the property to the Python value None.
-        
-        Guidelines:
-        1. Do not hallucinate entity property values if they cannot be found in the current context.
-        2. Only use the provided messages, entity, and entity context to set attribute values.
+        根据上述MESSAGES和以下ENTITY名称，为ENTITY创建摘要。您的摘要只能使用所提供的MESSAGES中的信息。您的摘要也应只包含与所提供的ENTITY相关的信息。摘要必须在250字以内。
+
+        此外，根据所提供实体属性的描述，提取其任何值。
+        如果实体属性的值在当前上下文中找不到，请将属性值设置为Python值None。
+
+        指南：
+        1. 如果实体属性值在当前上下文中找不到，请勿虚构。
+        2. 仅使用提供的消息、实体和实体上下文来设置属性值。
         
         <ENTITY>
         {context['node_name']}
@@ -116,8 +114,8 @@ def summary_description(context: dict[str, Any]) -> list[Message]:
         Message(
             role='user',
             content=f"""
-        Create a short one sentence description of the summary that explains what kind of information is summarized.
-        Summaries must be under 250 words.
+        创建一份对摘要的简短一句话描述，解释所总结信息的类型。
+        摘要必须少于250字
 
         Summary:
         {json.dumps(context['summary'], indent=2)}
