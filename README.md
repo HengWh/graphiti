@@ -137,7 +137,18 @@ or
 uv add graphiti-core
 ```
 
-You can also install optional LLM providers as extras:
+### Installing with FalkorDB Support
+
+If you plan to use FalkorDB as your graph database backend, install with the FalkorDB extra:
+
+```bash
+pip install graphiti-core[falkordb]
+
+# or with uv
+uv add graphiti-core[falkordb]
+```
+
+### You can also install optional LLM providers as extras:
 
 ```bash
 # Install with Anthropic support
@@ -151,6 +162,9 @@ pip install graphiti-core[google-genai]
 
 # Install with multiple providers
 pip install graphiti-core[anthropic,groq,google-genai]
+
+# Install with FalkorDB and LLM providers
+pip install graphiti-core[falkordb,anthropic,google-genai]
 ```
 
 ## Quick Start
@@ -198,6 +212,55 @@ Please see the [server README](./server/README.md) for more information.
 In addition to the Neo4j and OpenAi-compatible credentials, Graphiti also has a few optional environment variables.
 If you are using one of our supported models, such as Anthropic or Voyage models, the necessary environment variables
 must be set.
+
+### Database Configuration
+
+Database names are configured directly in the driver constructors:
+
+- **Neo4j**: Database name defaults to `neo4j` (hardcoded in Neo4jDriver)
+- **FalkorDB**: Database name defaults to `default_db` (hardcoded in FalkorDriver)
+
+As of v0.17.0, if you need to customize your database configuration, you can instantiate a database driver and pass it to the Graphiti constructor using the `graph_driver` parameter.
+
+#### Neo4j with Custom Database Name
+
+```python
+from graphiti_core import Graphiti
+from graphiti_core.driver.neo4j_driver import Neo4jDriver
+
+# Create a Neo4j driver with custom database name
+driver = Neo4jDriver(
+    uri="bolt://localhost:7687",
+    user="neo4j",
+    password="password",
+    database="my_custom_database"  # Custom database name
+)
+
+# Pass the driver to Graphiti
+graphiti = Graphiti(graph_driver=driver)
+```
+
+#### FalkorDB with Custom Database Name
+
+```python
+from graphiti_core import Graphiti
+from graphiti_core.driver.falkordb_driver import FalkorDriver
+
+# Create a FalkorDB driver with custom database name
+driver = FalkorDriver(
+    host="localhost",
+    port=6379,
+    username="falkor_user",  # Optional
+    password="falkor_password",  # Optional
+    database="my_custom_graph"  # Custom database name
+)
+
+# Pass the driver to Graphiti
+graphiti = Graphiti(graph_driver=driver)
+```
+
+
+### Performance Configuration
 
 `USE_PARALLEL_RUNTIME` is an optional boolean variable that can be set to true if you wish
 to enable Neo4j's parallel runtime feature for several of our search queries.
