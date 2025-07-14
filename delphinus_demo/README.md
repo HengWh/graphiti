@@ -69,3 +69,25 @@ Step A: 聚合 (Aggregation)
 
 Step B: 摘要与结构化 (Summarization & Structuring)
 聚合后的ConversationSegment对象，在存入Graphiti前，会由一个“摘要模块”调用LLM进行处理，填充以下关键属性。这构成了ConversationSegment节点的完整模型： models.py
+
+
+@/delphinus_demo\test_search.py  执行完app.search_()方法之后，对于返回的nodes节点，我需要对结果进行 批量相关性打分。新建一个相关性打分的py文件。
+
+操作: 将app.search_()获取的“nodes”中的每个节点信息（如节点name、summary等）打包，第二次调用LLM进行批量打分。
+Prompt 设计 (为节省成本，设计成能处理列表的prompt):
+<PROMPT>
+你是一个图谱节点相关性评估器。根据以下原始查询，为每个候选节点的相关性打分（1-10分，10分最相关），并简要说明理由。请以JSON列表格式返回。
+原始查询: "寻找由李明发送给小王，且内容关于盘古项目的文件。"
+候选节点列表:
+[
+  {"uuid": "node1", "name":"盘古项目", "summary": "用户李明发给小王的....."},
+  {"uuid": "node2", "name":".NET原生的HttpWebRequest SSL异常上报",  "summary": "The entity '.NET原生的HttpWebRequest SSL异常..."},
+  {"uuid": "node3", "name":"LibCurl",  "summary": "It was noted that some Win7 users might not have this patch installed...."}
+]
+预期输出 (Example):
+<JSON>
+[
+  {"uuid": "node1", "score": 9, "reason": "直接关联到'盘古项目'，可能李明发给小王的文件信息。"},
+  {"uuid": "node2", "score": 2, "reason": "..."},
+  {"uuid": "node3", "score": 3, "reason": "..."}
+]

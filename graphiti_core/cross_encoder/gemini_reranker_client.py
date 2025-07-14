@@ -66,7 +66,16 @@ class GeminiRerankerClient(CrossEncoderClient):
 
         self.config = config
         if client is None:
-            self.client = genai.Client(api_key=config.api_key)
+            client_kwargs = {
+                'api_key': config.api_key,
+            }
+            
+            # Add base_url if provided through http_options
+            if config.base_url:
+                client_kwargs['http_options'] = types.HttpOptions(base_url=config.base_url)
+                
+            self.client = genai.Client(**client_kwargs)
+            # self.client = genai.Client(api_key=config.api_key)
         else:
             self.client = client
 
