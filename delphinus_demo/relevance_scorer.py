@@ -1,18 +1,11 @@
 # delphinus_demo/relevance_scorer.py
 import json
 import logging
-import os
 from typing import List, Dict, Any
 
-import httpx
-from dotenv import dotenv_values
 from graphiti_core import Graphiti
 from graphiti_core.nodes import EpisodicNode
-
-# 加载 .env 文件中的配置
-config = dotenv_values(".env")
-API_KEY = config.get('GEMINI_API_KEY')
-BASE_URL = config.get('GEMINI_BASE_URL')
+from llm_helpers import generate_json_from_llm
 
 # 配置日志记录器
 log_formatter = logging.Formatter('%(asctime)s - %(message)s')
@@ -37,15 +30,15 @@ PROMPT_TEMPLATE = """
 """
 
 EDGE_PROMPT_TEMPLATE = """
-你是一个图谱边相关性评估器。根据以下原始查询，为每个候选边中包含的事实（fact）和情节（episodes）内容的相关性进行严格打分（1-10分，10分表示完全匹配或语义上等同）。只有当内容能够完全回答或证实查询中的关键信息时，才给予高分（9-10分）。
+你是一个图谱边相关性评估器。根据以下原始查询，为每个候选边中包含的事实（fact）和对话内容（episodes）的相关性进行严格打分（1-10分，10分表示完全匹配或语义上等同）。只有当内容能够完全回答或证实查询中的关键信息时，才给予高分（9-10分）。
 原始查询: "{query}"
-候选边列表 (每个边包含一个'fact'和多个'episodes'):
+候选边列表 (每个边包含一个'fact'和多个'episodes'原始对话内容):
 {edges_json}
 预期输出 (Example):
 <JSON>
 [
-  {{"edge_uuid": "edge1", "fact_score": 9, "fact_reason": "事实直接说明了'盘古项目'的交付时间。", "episode_scores": [{{"episode_uuid": "ep1", "score": 10, "reason": "内容完全符合查询关于交付时间的提问。"}}]}},
-  {{"edge_uuid": "edge2", "fact_score": 2, "fact_reason": "...", "episode_scores": [{{"episode_uuid": "ep2", "score": 3, "reason": "..."}}]}}
+  {{"uuid": "edge1", "score": 9, "reason": "事实直接说明了'盘古项目'的交付时间。"}},
+  {{"uuid": "edge2", "score": 2, "reason": "与原始查询提到的'盘古项目不相关'"}}
 ]
 """
 
@@ -79,64 +72,50 @@ async def score_nodes_relevance(
         scorer_logger.info("节点列表为空，无需打分。")
         return []
 
-    if not API_KEY or not BASE_URL:
-        scorer_logger.error("GEMINI_API_KEY 或 GEMINI_BASE_URL 未在 .env 文件中配置。")
-        return []
-
     candidate_nodes = prepare_nodes_for_scoring(nodes)
     nodes_json_str = json.dumps(candidate_nodes, indent=2, ensure_ascii=False)
 
     prompt = PROMPT_TEMPLATE.format(query=query, nodes_json=nodes_json_str)
     
     scorer_logger.info(f"正在为查询 '{query}' 的结果进行相关性打分...")
-    
-    request_url = f"{BASE_URL}/v1beta/models/gemini-2.5-pro:generateContent"
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": API_KEY,
-    }
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
 
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(request_url, json=payload, headers=headers, timeout=60)
-            response.raise_for_status()
-            
-            response_json = response.json()
-            content_text = response_json['candidates'][0]['content']['parts'][0]['text']
-            
-            # 提取JSON内容
-            if '<JSON>' in content_text and '</JSON>' in content_text:
-                 json_part = content_text.split('<JSON>')[1].split('</JSON>')[0].strip()
-            else:
-                 json_part = content_text.strip().replace("```json", "").replace("```", "").strip()
+        raw_scores_list = await generate_json_from_llm(
+            prompt=prompt,
+            model="gpt-4.1-mini",
+            provider="openai"
+        )
+        
+        # 兼容OpenAI可能返回的额外'result'层
+        if isinstance(raw_scores_list, dict) and 'results' in raw_scores_list:
+            raw_scores_list = raw_scores_list['results']
 
-            raw_scores_list = json.loads(json_part)
+        # 兼容OpenAI可能返回的额外'result'层
+        if isinstance(raw_scores_list, dict) and 'result' in raw_scores_list:
+            raw_scores_list = raw_scores_list['result']
             
-            # 对LLM返回的结果进行格式校验
-            validated_scores = []
-            if isinstance(raw_scores_list, list):
-                for item in raw_scores_list:
-                    if isinstance(item, dict) and 'uuid' in item and 'score' in item:
-                        validated_scores.append({
-                            'uuid': str(item['uuid']),
-                            'score': int(item['score']),
-                            'reason': item.get('reason', '')
-                        })
-                    else:
-                        scorer_logger.warning(f"跳过格式不正确的评分项: {item}")
-            else:
-                scorer_logger.error(f"LLM返回的不是一个列表: {raw_scores_list}")
-                # 可以选择返回空列表或抛出异常
-                return []
+        # 对LLM返回的结果进行格式校验
+        validated_scores = []
+        if isinstance(raw_scores_list, list):
+            for item in raw_scores_list:
+                if isinstance(item, dict) and 'uuid' in item and 'score' in item:
+                    validated_scores.append({
+                        'uuid': str(item['uuid']),
+                        'score': int(item['score']),
+                        'reason': item.get('reason', '')
+                    })
+                else:
+                    scorer_logger.warning(f"跳过格式不正确的评分项: {item}")
+        else:
+            scorer_logger.error(f"LLM返回的不是一个列表: {raw_scores_list}")
+            # 可以选择返回空列表或抛出异常
+            return []
 
-            scorer_logger.info(f"经过校验和处理后的打分结果: \n{json.dumps(validated_scores, indent=2, ensure_ascii=False)}")
+        scorer_logger.info(f"经过校验和处理后的打分结果: \n{json.dumps(validated_scores, indent=2, ensure_ascii=False)}")
+        
+        return validated_scores
             
-            return validated_scores
-            
-    except (httpx.RequestError, httpx.HTTPStatusError, json.JSONDecodeError, KeyError, IndexError) as e:
+    except Exception as e:
         scorer_logger.error(f"调用LLM或解析其响应时出错: {e}")
         # 出错时返回原始节点列表
         return nodes
@@ -172,7 +151,6 @@ async def prepare_edges_for_scoring(app: Graphiti, edges: List[Any]) -> List[Dic
                 node = episode_nodes_map.get(episode_uuid)
                 if node:
                     episodes_info.append({
-                        "episode_uuid": episode_uuid,
                         "content": node.content or ""
                     })
         
@@ -196,10 +174,6 @@ async def score_edges_relevance(
         scorer_logger.info("边列表为空，无需打分。")
         return []
 
-    if not API_KEY or not BASE_URL:
-        scorer_logger.error("GEMINI_API_KEY 或 GEMINI_BASE_URL 未在 .env 文件中配置。")
-        return []
-
     candidate_edges = await prepare_edges_for_scoring(app, edges)
     edges_json_str = json.dumps(candidate_edges, indent=2, ensure_ascii=False)
 
@@ -207,39 +181,42 @@ async def score_edges_relevance(
     
     scorer_logger.info(f"正在为查询 '{query}' 的关联边进行相关性打分...")
     
-    request_url = f"{BASE_URL}/v1beta/models/gemini-1.5-pro-latest:generateContent"
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": API_KEY,
-    }
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}]
-    }
-
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(request_url, json=payload, headers=headers, timeout=120) # Increased timeout
-            response.raise_for_status()
-            
-            response_json = response.json()
-            content_text = response_json['candidates'][0]['content']['parts'][0]['text']
-            
-            if '<JSON>' in content_text and '</JSON>' in content_text:
-                 json_part = content_text.split('<JSON>')[1].split('</JSON>')[0].strip()
-            else:
-                 json_part = content_text.strip().replace("```json", "").replace("```", "").strip()
+        raw_scores_list = await generate_json_from_llm(
+            prompt=prompt,
+            model="gpt-4.1-mini",
+            provider="openai"
+        )
 
-            raw_scores_list = json.loads(json_part)
-            
-            # Basic validation
-            if not isinstance(raw_scores_list, list):
-                scorer_logger.error(f"LLM返回的不是一个列表: {raw_scores_list}")
-                return []
+        # 兼容OpenAI可能返回的额外'result'层
+        if isinstance(raw_scores_list, dict) and 'results' in raw_scores_list:
+            raw_scores_list = raw_scores_list['results']
 
-            scorer_logger.info(f"经过校验和处理后的边打分结果: \n{json.dumps(raw_scores_list, indent=2, ensure_ascii=False)}")
+        # 兼容OpenAI可能返回的额外'result'层
+        if isinstance(raw_scores_list, dict) and 'result' in raw_scores_list:
+            raw_scores_list = raw_scores_list['result']
             
-            return raw_scores_list
+        # 对LLM返回的结果进行格式校验
+        validated_scores = []
+        if isinstance(raw_scores_list, list):
+            for item in raw_scores_list:
+                if isinstance(item, dict) and 'uuid' in item and 'score' in item:
+                    validated_scores.append({
+                        'uuid': str(item['uuid']),
+                        'score': int(item['score']),
+                        'reason': item.get('reason', '')
+                    })
+                else:
+                    scorer_logger.warning(f"跳过格式不正确的评分项: {item}")
+        else:
+            scorer_logger.error(f"LLM返回的不是一个列表: {raw_scores_list}")
+            # 可以选择返回空列表或抛出异常
+            return []
+
+        scorer_logger.info(f"经过校验和处理后的边打分结果: \n{json.dumps(raw_scores_list, indent=2, ensure_ascii=False)}")
+        
+        return raw_scores_list
             
-    except (httpx.RequestError, httpx.HTTPStatusError, json.JSONDecodeError, KeyError, IndexError) as e:
+    except Exception as e:
         scorer_logger.error(f"调用LLM或解析其响应时出错: {e}")
         return []

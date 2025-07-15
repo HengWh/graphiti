@@ -1,11 +1,38 @@
-# evaluate.py
+# test_evaluate.py
 import json
 import asyncio
+import logging
+import os
 from datetime import datetime
 from main import app # 导入你的Graphiti App
 from models import Document, ConversationSegment # 显式导入模型以供类型检查
 from graphiti_core.nodes import EntityNode, EpisodicNode # 导入 EntityNode 和 EpisodicNode
 from graphiti_core.edges import EntityEdge # 导入 EntityEdge
+
+# 创建日志目录
+log_dir = "test_results"
+os.makedirs(log_dir, exist_ok=True)
+log_file_path = os.path.join(log_dir, "test_evaluate.log")
+
+# 配置日志记录器
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# 如果已经有处理器，先移除，防止重复记录
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+# 创建文件处理器
+file_handler = logging.FileHandler(log_file_path, mode='w', encoding='utf-8')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+
+# 创建流处理器
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+
+# 添加处理器到日志记录器
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
 
 def json_serializer(obj):
     """JSON serializer for objects not serializable by default json code"""
@@ -32,10 +59,10 @@ def check_entity_matches_expectation(entity, expected_checks: dict) -> bool:
             actual_value = entity.attributes.get(attribute_name)
         
         if actual_value is None:
-            print(f"Debug: Attribute '{attribute_name}' not found on entity or in its attributes.") #可选的调试信息
+            logger.debug(f"Attribute '{attribute_name}' not found on entity or in its attributes.")
             return False
         
-        print(f"Debug: Attribute '{attribute_name}' value is '{actual_value}'. expected value is '{expected_value}'") #可选的调试信息
+        logger.debug(f"Attribute '{attribute_name}' value is '{actual_value}'. expected value is '{expected_value}'")
         # --- 在这里定义你的检查规则 ---
         if check_type == "contains":
             # 检查 actual_value 是否为列表，并且 expected_value 在列表中
@@ -53,7 +80,7 @@ def check_entity_matches_expectation(entity, expected_checks: dict) -> bool:
              if not(isinstance(actual_value, str) and expected_value.lower() == actual_value.lower()):
                 return False
         else:
-            print(f"警告：未知的检查规则 '{check_key}'，已跳过。")
+            logger.warning(f"未知的检查规则 '{check_key}'，已跳过。")
 
     return True # 所有检查都通过了
 
@@ -71,8 +98,8 @@ async def run_evaluation():
         expected = item["expected"]
         
         log_entry = { "question": question, "description": item.get("description", ""), "status": "❌ FAILED" }
-        print(f"\n--- Running Test Case {i+1}/{total_count}: {item.get('description', '')} ---")
-        print(f"question: {question}")
+        logger.info(f"\n--- Running Test Case {i+1}/{total_count}: {item.get('description', '')} ---")
+        logger.info(f"question: {question}")
         
         # 核心修正：异步调用 search 并处理 EntityEdge 列表
         try:
@@ -81,7 +108,7 @@ async def run_evaluation():
             # `app.search` 的类型提示是错误的，我们使用 `cast` 来告诉类型检查器真实的返回类型
             search_results = await app.search(question)
         except Exception as e:
-            print(f"执行搜索时发生错误: {e}")
+            logger.error(f"执行搜索时发生错误: {e}")
             search_results = []
 
         match_found = False
@@ -103,7 +130,7 @@ async def run_evaluation():
                                     found_node = node
                                     break # Found a matching node, break from the inner loop
                             except Exception as e:
-                                print(f"Debug: Failed to get EntityNode(uuid={uuid}): {e}")
+                                logger.debug(f"Failed to get EntityNode(uuid={uuid}): {e}")
                                 continue
                     
                     elif expected_node_type == "EpisodicNode":
@@ -116,11 +143,11 @@ async def run_evaluation():
                                         found_node = node
                                         break # Found a matching node, break from the inner loop
                             except Exception as e:
-                                print(f"Debug: Failed to get EpisodicNode: {e}")
+                                logger.debug(f"Failed to get EpisodicNode: {e}")
                     
                     if found_node:
-                        print(f"✅ PASSED - Found matching {expected_node_type}")
-                        print(f"node_name:{found_node.name}, node_uuid:{found_node.uuid}")
+                        logger.info(f"✅ PASSED - Found matching {expected_node_type}")
+                        logger.info(f"node_name:{found_node.name}, node_uuid:{found_node.uuid}")
                         match_found = True
                         log_entry["status"] = "✅ PASSED"
                         log_entry["found_node"] = found_node.model_dump()
@@ -130,7 +157,7 @@ async def run_evaluation():
                     break # A match is found, break from the expected_item loop
             
         if not match_found:
-            print("❌ FAILED - No result matched the expectation.")
+            logger.info("❌ FAILED - No result matched the expectation.")
             if search_results:
                 top_results_info = []
                 for res in search_results[:3]:
@@ -153,12 +180,16 @@ async def run_evaluation():
         if match_found:
             success_count += 1
             
-    print(f"\n\n--- Evaluation Summary ---")
-    print(f"Accuracy: {success_count / total_count * 100:.2f}% ({success_count}/{total_count})")
+    logger.info(f"\n\n--- Evaluation Summary ---")
+    logger.info(f"Accuracy: {success_count / total_count * 100:.2f}% ({success_count}/{total_count})")
     
-    with open('./test_results/test_evaluation.json', 'w', encoding='utf-8') as f:
-        json.dump(results_log, f, indent=2, ensure_ascii=False, default=json_serializer)
-    print("详细评估日志已保存到 evaluation_log.json")
+    try:
+        results_log_json = json.dumps(results_log, indent=2, ensure_ascii=False, default=json_serializer)
+        logger.info("--- 所有测试用例执行完毕 ---")
+        logger.info(f"最终评估结果:\n{results_log_json}")
+        logger.info(f"\n详细评估日志已保存到: {log_file_path}")
+    except TypeError as e:
+        logger.error(f"无法将评估结果序列化为 JSON: {e}")
 
 if __name__ == "__main__":
     asyncio.run(run_evaluation())
