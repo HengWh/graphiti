@@ -3,60 +3,22 @@ import json
 import asyncio
 import argparse
 from datetime import datetime
-from main import app # 导入你的Graphiti App
-from models import Document, ConversationSegment, Person, Project # 显式导入模型以供类型检查
-from graphiti_core.nodes import EntityNode, EpisodicNode # 导入 EntityNode 和 EpisodicNode
-from graphiti_core.edges import EntityEdge # 导入 EntityEdge
+from main import app  # 导入你的Graphiti App
+from models import Document, ConversationSegment, Person, Project  # 显式导入模型以供类型检查
+from graphiti_core.nodes import EntityNode, EpisodicNode  # 导入 EntityNode 和 EpisodicNode
+from graphiti_core.edges import EntityEdge  # 导入 EntityEdge
+from query_preprocessor import preprocess_query_http
+from relevance_scorer import score_nodes_relevance, score_edges_relevance
+from graphiti_core.search.search_config_recipes import (
+    NODE_HYBRID_SEARCH_CROSS_ENCODER,
+    EDGE_HYBRID_SEARCH_RRF
+)
 
 def json_serializer(obj):
     """JSON serializer for objects not serializable by default json code"""
     if isinstance(obj, datetime):
         return obj.isoformat()
-    raise TypeError ("Type %s not serializable" % type(obj))
-
-def check_entity_matches_expectation(entity, expected_checks: dict) -> bool:
-    """
-    一个灵活的辅助函数，用于检查单个实体是否满足所有期望的检查项。
-    :param entity: 从 graphiti search 结果中提取的节点对象 (e.g., Document, Person)
-    :param expected_checks: 一个包含检查规则的字典
-    :return: 如果所有检查都通过，则为 True，否则为 False
-    """
-    for check_key, expected_value in expected_checks.items():
-        # 安全地获取实体上的属性值，如果属性不存在，则检查失败
-        # 例: "name_contains" -> "name"
-        attribute_name = check_key.split('_')[0] 
-        check_type = check_key.split('_')[1] 
-        actual_value = getattr(entity, attribute_name, None)
-
-        # 如果顶层属性不存在，则尝试从 attributes 字典中获取
-        if actual_value is None and hasattr(entity, 'attributes') and isinstance(entity.attributes, dict):
-            actual_value = entity.attributes.get(attribute_name)
-        
-        if actual_value is None:
-            print(f"Debug: Attribute '{attribute_name}' not found on entity or in its attributes.") #可选的调试信息
-            return False
-        
-        print(f"Debug: Attribute '{attribute_name}' value is '{actual_value}'. expected value is '{expected_value}'") #可选的调试信息
-        # --- 在这里定义你的检查规则 ---
-        if check_type == "contains":
-            # 检查 actual_value 是否为列表，并且 expected_value 在列表中
-            if isinstance(actual_value, list):
-                if expected_value not in actual_value:
-                    return False
-            # 检查 actual_value 是否为字符串，并且 expected_value 在字符串中
-            elif isinstance(actual_value, str):
-                if expected_value not in actual_value:
-                    return False
-            # 如果 actual_value 既不是列表也不是字符串，则认为不匹配
-            else:
-                return False
-        elif check_type == "equals":
-             if not(isinstance(actual_value, str) and expected_value.lower() == actual_value.lower()):
-                return False
-        else:
-            print(f"警告：未知的检查规则 '{check_key}'，已跳过。")
-
-    return True # 所有检查都通过了
+    raise TypeError("Type %s not serializable" % type(obj))
 
 async def run_evaluation(ground_truth_file: str):
     """主评估函数"""
@@ -79,108 +41,107 @@ async def run_evaluation(ground_truth_file: str):
             print(f"--- 跳过测试用例 {i+1}/{total_count}: 缺少 'expected' 字段 ---")
             continue
 
-        log_entry = { "question": question, "status": "❌ FAILED" }
+        log_entry = {"question": question, "status": "❌ FAILED"}
         print(f"\n--- Running Test Case {i+1}/{total_count}: {item.get('description', '')} ---")
-        print(f"question: {question}")
-        
-        # 核心修正：异步调用 search 并处理 EntityEdge 列表
+        print(f"原始问题: {question}")
+
+        # --- 开始多阶段搜索 ---
         try:
-            search_results = await app.search(question)
-        except Exception as e:
-            print(f"执行搜索时发生错误: {e}")
-            search_results = []
+            # 1. 查询预处理
+            print("正在进行查询预处理...")
+            analysis_result = await preprocess_query_http(question)
+            rewritten_query = analysis_result.get("rewritten_query", question)
+            print(f"优化后的查询: {rewritten_query}")
 
-        all_expectations_met = True
-        found_nodes_for_log = []
+            # 2. 执行首次搜索
+            print("正在执行首次搜索...")
+            initial_search_results = await app.search_(rewritten_query, config=NODE_HYBRID_SEARCH_CROSS_ENCODER)
 
-        # Since the check `if not expected: continue` is present above,
-        # we can assume `expected` is a non-empty list here.
-        if not search_results:
+            # 3. 对结果进行相关性打分
+            print("正在对结果进行相关性打分...")
+            scored_node_info = await score_nodes_relevance(question, initial_search_results.nodes)
+
+            # 4. 基于高分节点进行二次搜索
+            high_score_info = [info for info in scored_node_info if info.get('score', 0) >= 9]
+            
+            final_nodes = initial_search_results.nodes
+            final_edges = initial_search_results.edges
+            final_episodes = initial_search_results.episodes
+
+            if high_score_info:
+                print(f"找到 {len(high_score_info)} 个高相关性节点，执行二次搜索...")
+                high_score_node_uuids = [info['uuid'] for info in high_score_info]
+                nodes_by_uuid = {str(node.uuid): node for node in initial_search_results.nodes}
+                high_score_nodes = [nodes_by_uuid[uuid] for uuid in high_score_node_uuids if uuid in nodes_by_uuid]
+                group_ids = list(set(node.group_id for node in high_score_nodes if node.group_id))
+
+                secondary_search_results = await app.search_(
+                    rewritten_query,
+                    config=EDGE_HYBRID_SEARCH_RRF,
+                    group_ids=group_ids,
+                    bfs_origin_node_uuids=high_score_node_uuids
+                )
+                
+                if secondary_search_results.nodes:
+                    final_nodes = secondary_search_results.nodes
+                else:
+                    final_nodes = high_score_nodes
+                final_edges = secondary_search_results.edges
+                final_episodes = secondary_search_results.episodes
+                print("二次搜索完成。")
+            else:
+                print("没有找到相关性足够高的节点，跳过二次搜索。")
+
+            # --- 结束多阶段搜索 ---
+
             all_expectations_met = False
-        else:
-            # For every expectation, we must find a match in the search results.
-            for expected_item in expected:
-                expectation_met_for_this_item = False
-                expected_node_type = expected_item.get("node", "EntityNode")
+            edge_scores = []
+
+            if final_edges:
+                print("正在对二次搜索返回的边进行相关性评分...")
+                edge_scores = await score_edges_relevance(app, rewritten_query, final_edges)
                 
-                for result in search_results: # result is of type EntityEdge
-                    found_node = None
-                    if expected_node_type == "EntityNode":
-                        # Check both source and target nodes
-                        node_uuids_to_check = [result.source_node_uuid, result.target_node_uuid]
-                        for uuid in node_uuids_to_check:
-                            try:
-                                node = await EntityNode.get_by_uuid(app.driver, uuid)
-                                if check_entity_matches_expectation(node, expected_item["checks"]):
-                                    found_node = node
-                                    break # Found a matching node, break from the inner loop
-                            except Exception as e:
-                                print(f"Debug: Failed to get EntityNode(uuid={uuid}): {e}")
-                                continue
-                    
-                    elif expected_node_type == "EpisodicNode":
-                        if result.episodes:
-                            unique_episode_uuids = list(set(result.episodes))
-                            try:
-                                episodic_nodes = await EpisodicNode.get_by_uuids(app.driver, unique_episode_uuids)
-                                for node in episodic_nodes:
-                                    if check_entity_matches_expectation(node, expected_item["checks"]):
-                                        found_node = node
-                                        break # Found a matching node, break from the inner loop
-                            except Exception as e:
-                                print(f"Debug: Failed to get EpisodicNode: {e}")
-                    
-                    if found_node:
-                        print(f"✅ Found match for expectation: {expected_item['checks']}")
-                        print(f"   - Node: {found_node.name} ({found_node.uuid})")
-                        expectation_met_for_this_item = True
-                        found_nodes_for_log.append(json.loads(found_node.model_dump_json()))
-                        break # A match is found for this expectation, move to the next one
-                
-                if not expectation_met_for_this_item:
-                    print(f"❌ Could not find match for expectation: {expected_item['checks']}")
-                    all_expectations_met = False
-                    break # One failure means the whole test case fails
-        
+                # 检查是否有任何一个fact或episode达到了完全匹配（10分）
+                for score_info in edge_scores:
+                    if score_info.get('fact_score') == 10:
+                        print(f"✅ PASSED - Found a perfect match in fact for edge {score_info.get('edge_uuid')}")
+                        all_expectations_met = True
+                        break
+                    if 'episode_scores' in score_info:
+                        for ep_score in score_info['episode_scores']:
+                            if ep_score.get('score') == 10:
+                                print(f"✅ PASSED - Found a perfect match in episode {ep_score.get('episode_uuid')} for edge {score_info.get('edge_uuid')}")
+                                all_expectations_met = True
+                                break
+                    if all_expectations_met:
+                        break
+            else:
+                print("二次搜索没有返回任何边，测试失败。")
+
+
+        except Exception as e:
+            print(f"执行搜索或评估时发生错误: {e}")
+            all_expectations_met = False
+
         if all_expectations_met:
-            print("✅ PASSED - All expectations met.")
             log_entry["status"] = "✅ PASSED"
-            log_entry["found_nodes"] = found_nodes_for_log
             success_count += 1
         else:
-            print("❌ FAILED - Not all expectations were met.")
+            print("❌ FAILED - No perfect match found.")
             log_entry["status"] = "❌ FAILED"
-            if search_results:
-                top_results_info = []
-                for res in search_results[:3]:
-                    try:
-                        source_node = await EntityNode.get_by_uuid(app.driver, res.source_node_uuid)
-                        target_node = await EntityNode.get_by_uuid(app.driver, res.target_node_uuid)
-                        episodics_json = []
-                        if res.episodes:
-                            episodic_nodes = await EpisodicNode.get_by_uuids(app.driver, list(set(res.episodes)))
-                            episodics_json = [json.loads(e.model_dump_json()) for e in episodic_nodes]
-                        top_results_info.append({
-                            "edge_uuid": res.uuid,
-                            "edge_name": res.name,
-                            "source_node": json.loads(source_node.model_dump_json()),
-                            "target_node": json.loads(target_node.model_dump_json()),
-                            "episodics_json": episodics_json
-                        })
-                    except Exception:
-                        continue
-                log_entry["top_results"] = top_results_info
-            else:
-                log_entry["top_results"] = []
+        
+        # 记录日志
+        log_entry["final_results"] = {
+            "nodes": [json.loads(n.model_dump_json()) for n in final_nodes] if 'final_nodes' in locals() else [],
+            "edges": [json.loads(e.model_dump_json()) for e in final_edges] if 'final_edges' in locals() else [],
+            "edge_scores": edge_scores
+        }
         
         results_log.append(log_entry)
             
     print(f"\n\n--- Evaluation Summary ---")
-    accuracy = f"{success_count / total_count * 100:.2f}%"
-    if total_count > 0:
-        print(f"Accuracy: {accuracy} ({success_count}/{total_count})")
-    else:
-        print("没有可评估的测试用例。")
+    accuracy = f"{success_count / total_count * 100:.2f}%" if total_count > 0 else "0.00%"
+    print(f"Accuracy: {accuracy} ({success_count}/{total_count})")
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_filename = f'./test_results/evaluation_{timestamp}_{accuracy}.json'
